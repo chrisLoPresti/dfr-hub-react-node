@@ -7,6 +7,7 @@ import PrivateRoute from "./components/PrivateRoute";
 import { PersistGate } from "redux-persist/integration/react";
 import { persistStore } from "redux-persist";
 import MapContainer from "./components/maps/MapContainer";
+import { CookiesProvider } from "react-cookie";
 
 const Four0four = () => <div>404</div>;
 
@@ -21,20 +22,22 @@ const Loading = () => (
 
 function App() {
   return (
-    <Provider store={store}>
-      <PersistGate loading={<Loading />} persistor={persistStore(store)}>
-        <div className="App">
-          <Routes>
-            <Route path={"/"} element={<Login />}></Route>
-            <Route path={"/login"} element={<Login />}></Route>
-            <Route element={<PrivateRoute />}>
-              <Route path="/map" element={<MapContainer />} />
-            </Route>
-            <Route path="*" exact={true} element={<Four0four />} />
-          </Routes>
-        </div>
-      </PersistGate>
-    </Provider>
+    <CookiesProvider>
+      <Provider store={store}>
+        <PersistGate loading={<Loading />} persistor={persistStore(store)}>
+          <div className="App">
+            <Routes>
+              <Route path={"/"} element={<Login />}></Route>
+              <Route path={"/login"} element={<Login />}></Route>
+              <Route element={<PrivateRoute />}>
+                <Route path="/map" element={<MapContainer />} />
+              </Route>
+              <Route path="*" exact={true} element={<Four0four />} />
+            </Routes>
+          </div>
+        </PersistGate>
+      </Provider>
+    </CookiesProvider>
   );
 }
 

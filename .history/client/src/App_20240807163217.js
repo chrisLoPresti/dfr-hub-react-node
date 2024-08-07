@@ -7,6 +7,7 @@ import PrivateRoute from "./components/PrivateRoute";
 import { PersistGate } from "redux-persist/integration/react";
 import { persistStore } from "redux-persist";
 import MapContainer from "./components/maps/MapContainer";
+import { withCookies } from "react-cookie";
 
 const Four0four = () => <div>404</div>;
 
@@ -19,7 +20,8 @@ const Loading = () => (
   </div>
 );
 
-function App() {
+function App(props) {
+  console.log(props.cookies.get("dfr_hub_auth_token"));
   return (
     <Provider store={store}>
       <PersistGate loading={<Loading />} persistor={persistStore(store)}>
@@ -38,4 +40,4 @@ function App() {
   );
 }
 
-export default App;
+export default withCookies(App);
