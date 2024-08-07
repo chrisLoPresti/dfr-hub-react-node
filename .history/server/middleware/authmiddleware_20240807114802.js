@@ -1,0 +1,61 @@
+const User = require("../models/User.js");
+const jwt = require("jsonwebtoken");
+const {
+  generateAccessAndRefreshTokens,
+} = require("../routes/api/auth/index.js");
+
+const options = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production" ? true : false,
+  sameSite: "Strict",
+};
+
+exports.verifyJWT = async (req, res, next) => {
+  const accessToken = req.headers["dfr_hub_auth_token"];
+  const refreshToken = req.cookies["dfr_hub_refresh_token"];
+  try {
+    // Look for the token in cookies or headers
+    // If there's no token, deny access with a 401 Unauthorized status
+    if (!accessToken) {
+      return res.status(401).json({ message: "No permission" });
+    }
+
+    // Check if the token is valid using a secret key
+    const decodedToken = jwt.verify(
+      accessToken,
+      process.env.ACCESS_TOKEN_SECRET
+    );
+
+    // Get the user linked to the token
+    const user = await User.findById(decodedToken?._id).select(
+      "-password -refreshToken"
+    );
+
+    // If the user isn't found, deny access with a 404 Not Found status
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Attach user info to the request for further use
+    req.user = user;
+    next();
+  } catch {
+    if (!refreshToken) {
+      return res.status(401).json({ message: "Access denied" });
+    }
+    try {
+      const {
+        user: { _id },
+      } = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+
+      const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
+        generateAccessAndRefreshTokens(_id);
+      res
+        .cookie("dfr_hub_auth_token", newAccessToken, options)
+        .cookie("dfr_hub_refresh_token", newRefreshToken, options);
+      next();
+    } catch {
+      return res.status(400).send("Invalid Token.");
+    }
+  }
+};
