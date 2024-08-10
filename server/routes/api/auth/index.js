@@ -119,16 +119,12 @@ exports.logout = async (req, res, next) => {
     .json();
 };
 
-exports.refreshAccessToken = async (req, res, next) => {
+exports.refreshtoken = async (req, res, next) => {
   // Retrieve the refresh token from cookies or request body
   const incomingRefreshToken = req.cookies?.["dfr_hub_refresh_token"];
-
   // If no refresh token is present, deny access with a 401 Unauthorized status
   if (!incomingRefreshToken) {
-    return res
-      .status(401)
-
-      .json({ message: "Refresh token not found" });
+    return res.status(401).json({ message: "Refresh token not found" });
   }
   try {
     res.clearCookie("dfr_hub_auth_token").clearCookie("dfr_hub_refresh_token");
@@ -161,7 +157,7 @@ exports.refreshAccessToken = async (req, res, next) => {
       .status(200)
       .cookie("dfr_hub_auth_token", accessToken, options)
       .cookie("dfr_hub_refresh_token", refreshToken, options)
-      .json();
+      .json(user);
   } catch (error) {
     // Handle any errors during token refresh with a 500 Internal Server Error status
     return res.status(500).json({ message: error.message });
