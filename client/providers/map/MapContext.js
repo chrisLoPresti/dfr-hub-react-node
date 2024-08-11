@@ -159,6 +159,17 @@ export const MapContextProvider = ({ children, initialUser }) => {
   );
 
   useEffect(() => {
+    if (selectedMapMarker) {
+      const markerStillExists = markers.find(
+        ({ _id }) => selectedMapMarker._id === _id
+      );
+      if (!markerStillExists) {
+        setSelectedMapMarker(null);
+      }
+    }
+  }, [markers, selectedMapMarker, setSelectedMapMarker]);
+
+  useEffect(() => {
     setCenter({
       lat: coords?.latitude,
       lng: coords?.longitude,

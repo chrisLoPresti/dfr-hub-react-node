@@ -233,7 +233,7 @@ export const Map = () => {
   ) : (
     <div
       className="flex w-full h-full items-center justify-center gap-3 bg-cover bg-center h-screen text-white text-2xl"
-      style={{ "background-image": "url('/map_placeholder.jpg')" }}
+      style={{ backgroundImage: "url('/map_placeholder.jpg')" }}
     >
       <FaSpinner className="animate-spin h-5 w-5" />
       <p>Loading map...</p>
