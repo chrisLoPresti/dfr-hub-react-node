@@ -30,7 +30,7 @@ const LoginForm = () => {
 
   useEffect(() => {
     if (user) {
-      const redirect = searchParams?.get("redirect") ?? "/account";
+      const redirect = searchParams?.get("redirect") ?? "/map";
       router.push(redirect);
     }
   }, [user]);

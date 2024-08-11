@@ -2,6 +2,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import AuthProvider from "@/providers/auth/AuthProvider";
 import ToastContainer from "@/components/atoms/Toast";
+import Tooltip from "@/components/atoms/Tooltip";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,6 +17,7 @@ export default async function RootLayout({ children }) {
       <body className={inter.className}>
         <AuthProvider>{children}</AuthProvider>
         <ToastContainer />
+        <Tooltip id="tooltip" className="z-50" />
       </body>
     </html>
   );
