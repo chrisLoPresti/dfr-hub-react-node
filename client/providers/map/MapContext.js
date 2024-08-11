@@ -7,6 +7,7 @@ import { useGeolocated } from "react-geolocated";
 import useSWR from "swr";
 import themeConfig from "@/tailwind.config";
 import { errorToast, successToast } from "@/components/atoms/Toast";
+import { useSocket } from "@/hooks/useSocket";
 
 const libraries = ["places"];
 
@@ -37,9 +38,11 @@ export const MapContextProvider = ({ children, initialUser }) => {
   const [markers, setMarkers] = useState([]);
   const [isLoading, setLoading] = useState(false);
   const [selectedMapMarker, setSelectedMapMarker] = useState(null);
+  const { socket } = useSocket();
 
-  const { data: allMarkers = [] } = useSWR("/api/markers/getmarkers", (url) =>
-    fetcher(url)
+  const { data: allMarkers = [], mutate } = useSWR(
+    "/api/markers/getmarkers",
+    (url) => fetcher(url)
   );
 
   const { isLoaded } = useJsApiLoader({
@@ -164,6 +167,17 @@ export const MapContextProvider = ({ children, initialUser }) => {
   useEffect(() => {
     setMarkers(allMarkers);
   }, [allMarkers]);
+
+  useEffect(() => {
+    console.log("socket", socket);
+
+    if (socket) {
+      socket.on("markers-updated", () => {
+        console.log("update the data");
+        mutate();
+      });
+    }
+  }, [socket]);
 
   return (
     <MapContext.Provider

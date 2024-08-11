@@ -1,6 +1,7 @@
 "use client";
 
 import { useUser } from "@/hooks/useUser";
+import { SocketContextProvider } from "@/providers/socket/SocketContext";
 import { useEffect } from "react";
 
 export default function AccountLayout({ children }) {
@@ -29,7 +30,9 @@ export default function AccountLayout({ children }) {
           </div>
         </header>
       )}
-      <div className="flex h-[calc(100vh_-_64px)] relative">{children}</div>
+      <SocketContextProvider>
+        <div className="flex h-[calc(100vh_-_64px)] relative">{children}</div>
+      </SocketContextProvider>{" "}
     </>
   );
 }

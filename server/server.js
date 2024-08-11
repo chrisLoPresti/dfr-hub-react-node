@@ -4,7 +4,7 @@ const { Server } = require("socket.io");
 const mongoose = require("mongoose");
 const router = require("./routes");
 const bodyParser = require("body-parser");
-var cookies = require("cookie-parser");
+const cookies = require("cookie-parser");
 const cors = require("cors");
 require("dotenv-flow").config();
 
@@ -28,11 +28,20 @@ mongoose
   .then(() => console.log("MongoDB Connected..."))
   .catch((err) => console.log(err));
 
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+  },
+});
 
 io.on("connection", (socket) => {
-  console.log("a user connected");
+  console.log(`a user connected with socket id: ${socket.id}`);
+  socket.on("disconnect", () => {
+    console.log("user disconnected");
+  });
 });
+
+app.set("socketio", io);
 
 server.listen(process.env.PORT || 5000, () => {
   console.log("listening on *:5000");

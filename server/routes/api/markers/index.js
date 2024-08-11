@@ -50,6 +50,8 @@ exports.updatemarker = async (req, res, next) => {
       { returnDocument: "after" }
     );
 
+    const io = req.app.get("socketio");
+    io.emit("markers-updated", { message: "Markers data updated" });
     res.status(200).json({ ...updatedMarker._doc, created_by });
   } catch (e) {
     res.status(400).json({

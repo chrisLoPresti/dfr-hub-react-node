@@ -28,6 +28,22 @@ const generateAccessAndRefreshTokens = async (userId) => {
   }
 };
 
+const generateSessionToken = async ({ user, accessToken, refreshToken }) => {
+  const sessionToken = jwt.sign(
+    {
+      user,
+      accessToken,
+      refreshToken,
+    },
+    process.env.REFRESH_TOKEN_SECRET,
+    {
+      expiresIn: "15d",
+    }
+  );
+
+  return sessionToken;
+};
+
 exports.generateAccessAndRefreshTokens = generateAccessAndRefreshTokens;
 
 exports.register = async (req, res, next) => {
@@ -89,19 +105,13 @@ exports.login = async (req, res, next) => {
     delete user._doc.password;
     delete user._doc.refreshToken;
 
-    const session = jwt.sign(
-      {
-        user,
-        accessToken,
-        refreshToken,
-      },
-      process.env.REFRESH_TOKEN_SECRET,
-      {
-        expiresIn: "15d",
-      }
-    );
+    const sessionToken = await generateSessionToken({
+      user,
+      accessToken,
+      refreshToken,
+    });
 
-    res.status(200).cookie("dfr_hub_session", session, options).json(user);
+    res.status(200).cookie("dfr_hub_session", sessionToken, options).json(user);
   } catch (e) {
     res.status(400).json({
       message: e,
@@ -161,21 +171,16 @@ exports.refreshtoken = async (req, res, next) => {
       user._id
     );
 
-    const session = jwt.sign(
-      {
-        user,
-        accessToken,
-        refreshToken,
-      },
-      process.env.REFRESH_TOKEN_SECRET,
-      {
-        expiresIn: "15d",
-      }
-    );
+    const sessionToken = await generateSessionToken({
+      user,
+      accessToken,
+      refreshToken,
+    });
+
     // Set the new tokens in cookies
     return res
       .status(200)
-      .cookie("dfr_hub_session", session, options)
+      .cookie("dfr_hub_session", sessionToken, options)
       .json(user);
   } catch (error) {
     // Handle any errors during token refresh with a 500 Internal Server Error status
