@@ -1,6 +1,6 @@
-import axios from "axios";
 import { AuthContextProvider } from "./AuthContext";
 import { cookies } from "next/headers";
+import { apiInstance } from "@/lib/api";
 
 async function fetchUser() {
   const sessionCookie = cookies().get("dfr_hub_session");
@@ -8,8 +8,8 @@ async function fetchUser() {
     return null;
   }
 
-  const res = await axios
-    .get(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/api/auth/validate`, {
+  const res = await apiInstance
+    .get("/api/auth/validate", {
       withCredentials: true,
       headers: {
         Cookie: `${sessionCookie.name}=${sessionCookie.value};`,

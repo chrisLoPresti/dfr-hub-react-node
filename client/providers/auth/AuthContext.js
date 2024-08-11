@@ -1,8 +1,8 @@
 "use client";
 
-import axios from "axios";
 import { createContext, useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
+import { apiInstance } from "@/lib/api";
 
 export const AuthContext = createContext({
   user: null,
@@ -12,23 +12,18 @@ export const AuthContext = createContext({
 
 export const AuthContextProvider = ({ children, initialUser }) => {
   const [user, setUser] = useState(initialUser);
-  const [isLoading, setLoading] = useState(initialUser);
+  const [isLoading, setLoading] = useState(false);
   const router = useRouter();
-
   const login = useCallback(
     async (credentials) => {
       if (isLoading) {
         return;
       }
       setLoading(true);
-      const res = await axios
-        .post(
-          `${process.env.NEXT_PUBLIC_API_ENDPOINT}/api/auth/login`,
-          credentials,
-          {
-            withCredentials: true,
-          }
-        )
+      const res = await apiInstance
+        .post("/api/auth/login", credentials, {
+          withCredentials: true,
+        })
         .catch(() => setLoading(false));
 
       if (res?.data) {
@@ -42,9 +37,9 @@ export const AuthContextProvider = ({ children, initialUser }) => {
   );
 
   const logout = useCallback(async () => {
-    await axios
+    await apiInstance
       .post(
-        `${process.env.NEXT_PUBLIC_API_ENDPOINT}/api/auth/logout`,
+        "/api/auth/logout",
         { _id: user._id },
         {
           withCredentials: true,

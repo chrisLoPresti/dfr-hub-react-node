@@ -2,7 +2,7 @@ const { default: axios } = require("axios");
 
 const baseURL = process.env.NEXT_PUBLIC_API_ENDPOINT;
 
-export const api = axios.create({
+export const apiInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_ENDPOINT,
   withCredentials: true,
   headers: {
@@ -10,7 +10,7 @@ export const api = axios.create({
   },
 });
 
-api.interceptors.response.use(
+apiInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     const originalRequest = error.config;

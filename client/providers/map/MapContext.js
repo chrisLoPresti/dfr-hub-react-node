@@ -1,8 +1,7 @@
 "use client";
 
-import { api } from "@/lib/api";
+import { apiInstance } from "@/lib/api";
 import { useJsApiLoader } from "@react-google-maps/api";
-import axios from "axios";
 import { createContext, useEffect, useState } from "react";
 import { useGeolocated } from "react-geolocated";
 import useSWR from "swr";
@@ -17,7 +16,7 @@ export const MapContext = createContext({
 });
 
 const fetcher = async (url) => {
-  const { data } = await api.get(url);
+  const { data } = await apiInstance.get(url);
   return data;
 };
 
