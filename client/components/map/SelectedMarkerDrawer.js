@@ -34,6 +34,7 @@ const SelectedMarkerDrawer = () => {
 
   const handleRecenterMap = useCallback(() => {
     map.setCenter(selectedMapMarker.position);
+    map.setZoom(15);
   }, [map, selectedMapMarker]);
 
   return (
