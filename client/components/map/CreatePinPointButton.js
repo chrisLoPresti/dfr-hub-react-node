@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import { useState } from "react";
-import { BsSuitDiamond } from "react-icons/bs";
+import { TbDiamonds } from "react-icons/tb";
 import ColorButtons from "./ColorButtons";
 
 const CreatePinPointButton = ({
@@ -44,7 +44,7 @@ const CreatePinPointButton = ({
           enablePinPoints ? "Disable" : "Enable"
         } click to create markers`}
       >
-        <BsSuitDiamond />
+        <TbDiamonds />
       </button>
     </div>
   );

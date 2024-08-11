@@ -34,14 +34,29 @@ const io = new Server(server, {
   },
 });
 
+app.set("socketio", io);
+
 io.on("connection", (socket) => {
   console.log(`a user connected with socket id: ${socket.id}`);
+
+  // console.log(socket1);
   socket.on("disconnect", () => {
-    console.log("user disconnected");
+    console.log("user disconnected: ", socket.userId);
+  });
+
+  socket.on("user-connected", async (message) => {
+    const sockets = await io.fetchSockets();
+    const existingUserSocket = sockets.find(
+      ({ userId }) => userId === message.user
+    );
+    if (existingUserSocket) {
+      existingUserSocket.emit("new-session-started", {
+        message: "You are already logged in on another device",
+      });
+    }
+    socket.userId = message.user;
   });
 });
-
-app.set("socketio", io);
 
 server.listen(process.env.PORT || 5000, () => {
   console.log("listening on *:5000");
