@@ -5,6 +5,7 @@ import { MapContext } from "@/providers/map/MapContext";
 
 export const useMap = () => {
   const {
+    isLoading,
     map,
     setMap,
     center,
@@ -13,9 +14,16 @@ export const useMap = () => {
     elevator,
     setElevator,
     markers,
+    markerColors,
+    createNewMapMarker,
+    selectedMapMarker,
+    setSelectedMapMarker,
+    deleteMapMarker,
+    updateMapMarker,
   } = useContext(MapContext);
 
   return {
+    isLoading,
     map,
     setMap,
     center,
@@ -24,5 +32,12 @@ export const useMap = () => {
     elevator,
     setElevator,
     markers,
+    markerColors,
+    createNewMapMarker,
+    createNewMapMarker,
+    selectedMapMarker,
+    setSelectedMapMarker,
+    deleteMapMarker,
+    updateMapMarker,
   };
 };

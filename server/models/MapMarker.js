@@ -23,6 +23,10 @@ const MapMarkerSchema = new Schema(
     color: {
       type: String,
     },
+    workspace_id: {
+      type: String,
+      required: true,
+    },
     created_by: {
       type: Schema.Types.ObjectId,
       ref: "User",

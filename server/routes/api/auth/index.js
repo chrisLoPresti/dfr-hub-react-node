@@ -54,7 +54,7 @@ exports.register = async (req, res, next) => {
     if (errorResponse.code === 11000) {
       error = "An account with this email already exists!";
     }
-    res.status(401).json({
+    res.status(400).json({
       message: "User not successful created",
       error,
     });
@@ -103,7 +103,7 @@ exports.login = async (req, res, next) => {
 
     res.status(200).cookie("dfr_hub_session", session, options).json(user);
   } catch (e) {
-    res.status(401).json({
+    res.status(400).json({
       message: e,
     });
   }

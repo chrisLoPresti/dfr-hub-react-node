@@ -15,8 +15,8 @@ export default function AccountLayout({ children }) {
   return (
     <>
       {user && (
-        <header>
-          <div className="bg-slate-700 flex items-center w-full h-16">
+        <header className="sticky top-0 z-20 h-16 bg-slate-900">
+          <div className="flex items-center w-full h-full">
             <button
               onClick={logout}
               className="bg-slate-400 rounded-md p-2 text-white ml-2.5"
@@ -29,7 +29,7 @@ export default function AccountLayout({ children }) {
           </div>
         </header>
       )}
-      {children}
+      <div className="flex h-[calc(100vh_-_64px)] relative">{children}</div>
     </>
   );
 }

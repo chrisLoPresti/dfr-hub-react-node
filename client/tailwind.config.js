@@ -34,5 +34,25 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  safelist: [
+    {
+      pattern: /bg-(red|green|blue|purple|yellow)-annotation/,
+      variants: ["lg", "hover", "focus", "lg:hover"],
+    },
+    {
+      pattern: /border-(red|green|blue|purple|yellow)-annotation/,
+      variants: ["lg", "hover", "focus", "lg:hover"],
+    },
+    {
+      pattern: /to-(red|green|blue|purple|yellow)-annotation/,
+      variants: ["lg", "hover", "focus", "lg:hover"],
+    },
+    {
+      pattern: /text-(red|green|blue|purple|yellow)-annotation/,
+    },
+  ],
+  plugins: [
+    require("@designbycode/tailwindcss-text-stroke"),
+    require("tailwind-scrollbar"),
+  ],
 };

@@ -7,14 +7,29 @@ const {
   refreshtoken,
   validate,
 } = require("./api/auth");
-const { getmarkers } = require("./api/markers");
+const {
+  getmarkers,
+  createmarker,
+  deletemarker,
+  updatemarker,
+} = require("./api/markers");
 const { verifyJWT } = require("../middleware/authmiddleware");
 
+//post requests
 router.route("/api/auth/sign-up").post(register);
 router.route("/api/auth/login").post(login);
 router.route("/api/auth/logout").post(logout);
+router.route("/api/markers/createmarker").post(verifyJWT, createmarker);
+
+//get requests
 router.route("/api/auth/refreshtoken").get(refreshtoken);
 router.route("/api/auth/validate").get(validate);
 router.route("/api/markers/getmarkers").get(verifyJWT, getmarkers);
+
+//put requests
+router.route("/api/markers/updatemarker").put(verifyJWT, updatemarker);
+
+//delete requests
+router.route("/api/markers/deletemarker").delete(verifyJWT, deletemarker);
 
 module.exports = router;
