@@ -41,6 +41,7 @@ const MapMarker = ({ marker, lockMarkerDrag }) => {
   const handleSelectMarker = useCallback(() => {
     setSelectedMapMarker(marker);
     setCenter(marker.position);
+    map.setZoom(15);
   }, [marker, setSelectedMapMarker, setCenter]);
 
   return (

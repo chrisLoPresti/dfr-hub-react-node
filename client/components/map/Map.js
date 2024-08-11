@@ -37,7 +37,6 @@ export const Map = () => {
   //   const { selectedDevice } = useDeviceContext();
 
   const onMapLoad = useCallback((map) => {
-    map.setZoom(15);
     setMap(map);
     const newElevator = new google.maps.ElevationService();
     setElevator(newElevator);
@@ -151,6 +150,7 @@ export const Map = () => {
           mapTypeId: mapTypeId,
           rotateControl: true,
           streetViewControl: false,
+          minZoom: 5,
           // disableDefaultUI: true
         }}
       >
