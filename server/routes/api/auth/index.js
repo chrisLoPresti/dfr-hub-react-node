@@ -138,6 +138,12 @@ exports.refreshtoken = async (req, res, next) => {
       incomingSessionToken,
       process.env.REFRESH_TOKEN_SECRET
     );
+
+    jwt.verify(
+      decodedSessionToken.refreshToken,
+      process.env.REFRESH_TOKEN_SECRET
+    );
+
     // Find the user associated with the refresh token
     const user = await User.findById(decodedSessionToken?.user?._id);
 
@@ -200,8 +206,4 @@ exports.validate = async (req, res, next) => {
     // Handle any errors during token refresh with a 500 Internal Server Error status
     return res.status(500).json({ message: error.message });
   }
-};
-
-exports.test = async (req, res, next) => {
-  res.status(200).json({ message: "success!" });
 };

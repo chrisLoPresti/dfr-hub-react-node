@@ -12,7 +12,7 @@ const { verifyJWT } = require("../middleware/authmiddleware");
 
 router.route("/api/auth/sign-up").post(register);
 router.route("/api/auth/login").post(login);
-router.route("/api/auth/logout").post(verifyJWT, logout);
+router.route("/api/auth/logout").post(logout);
 router.route("/api/auth/refreshtoken").get(refreshtoken);
 router.route("/api/auth/validate").get(validate);
 router.route("/api/markers/getmarkers").get(verifyJWT, getmarkers);

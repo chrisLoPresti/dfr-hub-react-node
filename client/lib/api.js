@@ -26,18 +26,17 @@ apiInstance.interceptors.response.use(
         })
         .then((response) => {
           // Re-run the original request that was intercepted
-          api(originalRequest)
+          apiInstance(originalRequest)
             .then((response) => {
-              return response.data;
+              // return response.data;
             })
             .catch((error) => {
-              console.log(error);
+              window.location.href = "/logout";
             });
-          // return api(originalRequest)
         })
-        .catch((err) => {
+        .catch((error) => {
           // If there is an error refreshing the token, log out the user
-          console.log(err);
+          window.location.href = "/logout";
         });
     }
 

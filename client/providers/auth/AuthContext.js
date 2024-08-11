@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { apiInstance } from "@/lib/api";
 
 export const AuthContext = createContext({
@@ -13,6 +13,7 @@ export const AuthContext = createContext({
 export const AuthContextProvider = ({ children, initialUser }) => {
   const [user, setUser] = useState(initialUser);
   const [isLoading, setLoading] = useState(false);
+  const pathname = usePathname();
   const router = useRouter();
   const login = useCallback(
     async (credentials) => {
@@ -40,7 +41,7 @@ export const AuthContextProvider = ({ children, initialUser }) => {
     await apiInstance
       .post(
         "/api/auth/logout",
-        { _id: user._id },
+        { _id: user?._id },
         {
           withCredentials: true,
         }
@@ -48,8 +49,11 @@ export const AuthContextProvider = ({ children, initialUser }) => {
       .catch(() => {});
 
     setUser(null);
-    router.push("/login");
-  }, [user]);
+
+    router.push(
+      `/login${pathname.includes("logout") ? "" : `?redirect=${pathname}`}`
+    );
+  }, [user, pathname]);
 
   return (
     <AuthContext.Provider
