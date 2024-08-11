@@ -21,12 +21,6 @@ export default function MapLayout({ children }) {
         {user && (
           <header className="sticky top-0 z-20 h-16 bg-slate-900">
             <div className="flex items-center w-full h-full">
-              <button
-                onClick={logout}
-                className="bg-slate-400 rounded-md p-2 text-white ml-2.5"
-              >
-                Logout
-              </button>
               <p className="text-white ml-auto mr-2.5">
                 {user.first_name} {user.last_name}
               </p>
