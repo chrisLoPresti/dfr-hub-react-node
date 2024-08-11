@@ -1,5 +1,7 @@
 const MapMarker = require("../../../models/MapMarker");
 
+const io = req.app.get("socketio");
+
 exports.getmarkers = async (req, res, next) => {
   try {
     const markers = await MapMarker.find().populate({
@@ -24,7 +26,7 @@ exports.createmarker = async (req, res, next) => {
 
     const newMarker = new MapMarker({ ...marker, created_by: user._id });
     const savedMarker = await newMarker.save();
-
+    io.emit("markers-updated", { message: "Markers data updated" });
     return res.status(200).json({
       ...savedMarker._doc,
       created_by: {
@@ -49,8 +51,6 @@ exports.updatemarker = async (req, res, next) => {
       { ...marker, updated_at: new Date() },
       { returnDocument: "after" }
     );
-
-    const io = req.app.get("socketio");
     io.emit("markers-updated", { message: "Markers data updated" });
     res.status(200).json({ ...updatedMarker._doc, created_by });
   } catch (e) {
@@ -64,6 +64,7 @@ exports.deletemarker = async (req, res, next) => {
   try {
     const { marker } = req.body;
     const deletedMarker = await MapMarker.findByIdAndDelete(marker._id);
+    io.emit("markers-updated", { message: "Markers data updated" });
     res.status(200).json(deletedMarker);
   } catch (e) {
     res.status(400).json({
