@@ -40,7 +40,7 @@ export const MapContextProvider = ({ children, initialUser }) => {
   const [selectedMapMarker, setSelectedMapMarker] = useState(null);
   const { socket } = useSocket();
 
-  const { data: allMarkers = [], mutate } = useSWR(
+  const { data: allMarkers = [], mutate: getAllMarkers } = useSWR(
     "/api/markers/getmarkers",
     (url) => fetcher(url)
   );
@@ -115,6 +115,7 @@ export const MapContextProvider = ({ children, initialUser }) => {
         });
         successToast(`Successfully deleted Map Marker: ${marker.name}`);
         setMarkers([...markers.filter(({ name }) => name !== marker.name)]);
+        setSelectedMapMarker(null);
         setLoading(false);
         return data;
       } catch (error) {
@@ -122,7 +123,7 @@ export const MapContextProvider = ({ children, initialUser }) => {
         return { error };
       }
     },
-    [setLoading, markers]
+    [setLoading, markers, setMarkers, setSelectedMapMarker]
   );
 
   const updateMapMarker = useCallback(
@@ -169,12 +170,10 @@ export const MapContextProvider = ({ children, initialUser }) => {
   }, [allMarkers]);
 
   useEffect(() => {
-    console.log("socket", socket);
-
     if (socket) {
       socket.on("markers-updated", () => {
         console.log("update the data");
-        mutate();
+        getAllMarkers();
       });
     }
   }, [socket]);
