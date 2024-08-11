@@ -140,7 +140,7 @@ export const Map = () => {
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={center}
-        zoom={1}
+        zoom={10}
         onLoad={onMapLoad}
         onUnmount={onUnmount}
         onClick={dropMarker}
@@ -231,7 +231,10 @@ export const Map = () => {
       <SelectedMarkerDrawer />
     </div>
   ) : (
-    <div className="flex w-full h-full items-center justify-center gap-3">
+    <div
+      className="flex w-full h-full items-center justify-center gap-3 bg-cover bg-center h-screen text-white text-2xl"
+      style={{ "background-image": "url('/map_placeholder.jpg')" }}
+    >
       <FaSpinner className="animate-spin h-5 w-5" />
       <p>Loading map...</p>
     </div>
