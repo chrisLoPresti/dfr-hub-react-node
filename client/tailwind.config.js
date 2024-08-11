@@ -21,6 +21,11 @@ module.exports = {
           900: "#115629",
           950: "#033014",
         },
+        "blue-annotation": "#2D8CF0",
+        "green-annotation": "#19BE6B",
+        "yellow-annotation": "#FFBB00",
+        "red-annotation": "#E23C39",
+        "purple-annotation": "#B620E0",
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",

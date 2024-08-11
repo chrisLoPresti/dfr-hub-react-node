@@ -2,23 +2,28 @@ const User = require("../models/User.js");
 const jwt = require("jsonwebtoken");
 
 exports.verifyJWT = async (req, res, next) => {
-  const accessToken = req.cookies["dfr_hub_auth_token"];
+  const sessionToken = req.cookies["dfr_hub_session"];
   //   const refreshToken = req.cookies["dfr_hub_refresh_token"];
   try {
     // Look for the token in cookies or headers
     // If there's no token, deny access with a 401 Unauthorized status
-    if (!accessToken) {
+    if (!sessionToken) {
       return res.status(401).json({ message: "No permission" });
     }
 
     // Check if the token is valid using a secret key
-    const decodedToken = jwt.verify(
-      accessToken,
+    const decodedSessionToken = jwt.verify(
+      sessionToken,
+      process.env.REFRESH_TOKEN_SECRET
+    );
+
+    jwt.verify(
+      decodedSessionToken.accessToken,
       process.env.ACCESS_TOKEN_SECRET
     );
 
     // Get the user linked to the token
-    const user = await User.findById(decodedToken?._id).select(
+    const user = await User.findById(decodedSessionToken?.user?._id).select(
       "-password -refreshToken"
     );
 

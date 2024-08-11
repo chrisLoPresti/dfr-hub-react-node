@@ -88,11 +88,20 @@ exports.login = async (req, res, next) => {
 
     delete user._doc.password;
     delete user._doc.refreshToken;
-    res
-      .status(200)
-      .cookie("dfr_hub_auth_token", accessToken, options)
-      .cookie("dfr_hub_refresh_token", refreshToken, options)
-      .json(user);
+
+    const session = jwt.sign(
+      {
+        user,
+        accessToken,
+        refreshToken,
+      },
+      process.env.REFRESH_TOKEN_SECRET,
+      {
+        expiresIn: "15d",
+      }
+    );
+
+    res.status(200).cookie("dfr_hub_session", session, options).json(user);
   } catch (e) {
     res.status(401).json({
       message: e,
@@ -102,9 +111,9 @@ exports.login = async (req, res, next) => {
 
 exports.logout = async (req, res, next) => {
   // Remove the refresh token from the user's information
-  const { user } = req.body;
+  const { _id } = req.body;
   await User.findByIdAndUpdate(
-    user._id,
+    _id,
     {
       $set: { refreshToken: undefined },
     },
@@ -112,38 +121,32 @@ exports.logout = async (req, res, next) => {
   );
 
   // Clear the access and refresh tokens in cookies
-  return res
-    .status(200)
-    .clearCookie("dfr_hub_auth_token")
-    .clearCookie("dfr_hub_refresh_token")
-    .json();
+  return res.status(200).clearCookie("dfr_hub_session").json();
 };
 
 exports.refreshtoken = async (req, res, next) => {
   // Retrieve the refresh token from cookies or request body
-  const incomingRefreshToken = req.cookies?.["dfr_hub_refresh_token"];
+  const incomingSessionToken = req.cookies?.["dfr_hub_session"];
   // If no refresh token is present, deny access with a 401 Unauthorized status
-  if (!incomingRefreshToken) {
-    return res.status(401).json({ message: "Refresh token not found" });
+  if (!incomingSessionToken) {
+    return res.status(401).json({ message: "Session token not found" });
   }
   try {
-    res.clearCookie("dfr_hub_auth_token").clearCookie("dfr_hub_refresh_token");
+    res.clearCookie("dfr_hub_session");
     // Verify the incoming refresh token using the secret key
-    const decodedToken = jwt.verify(
-      incomingRefreshToken,
+    const decodedSessionToken = jwt.verify(
+      incomingSessionToken,
       process.env.REFRESH_TOKEN_SECRET
     );
-
     // Find the user associated with the refresh token
-    const user = await User.findById(decodedToken?._id);
+    const user = await User.findById(decodedSessionToken?.user?._id);
 
     // If the user isn't found, deny access with a 404 Not Found status
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-
     // If the stored refresh token doesn't match the incoming one, deny access with a 401 Unauthorized status
-    if (user?.refreshToken !== incomingRefreshToken) {
+    if (user?.refreshToken !== decodedSessionToken.refreshToken) {
       return res.status(401).json({ message: "Refresh token is incorrect" });
     }
 
@@ -152,12 +155,47 @@ exports.refreshtoken = async (req, res, next) => {
       user._id
     );
 
+    const session = jwt.sign(
+      {
+        user,
+        accessToken,
+        refreshToken,
+      },
+      process.env.REFRESH_TOKEN_SECRET,
+      {
+        expiresIn: "15d",
+      }
+    );
     // Set the new tokens in cookies
     return res
       .status(200)
-      .cookie("dfr_hub_auth_token", accessToken, options)
-      .cookie("dfr_hub_refresh_token", refreshToken, options)
+      .cookie("dfr_hub_session", session, options)
       .json(user);
+  } catch (error) {
+    // Handle any errors during token refresh with a 500 Internal Server Error status
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+exports.validate = async (req, res, next) => {
+  // Retrieve the refresh token from cookies or request body
+  const incomingSessionToken = req.cookies?.["dfr_hub_session"];
+  // If no refresh token is present, deny access with a 401 Unauthorized status
+  if (!incomingSessionToken) {
+    return res.status(401).json({ message: "Session token not found" });
+  }
+
+  try {
+    // Verify the incoming refresh token using the secret key
+    const decodedSession = jwt.verify(
+      incomingSessionToken,
+      process.env.REFRESH_TOKEN_SECRET
+    );
+
+    return res
+      .status(200)
+      .cookie("dfr_hub_session", incomingSessionToken, options)
+      .json(decodedSession.user);
   } catch (error) {
     // Handle any errors during token refresh with a 500 Internal Server Error status
     return res.status(500).json({ message: error.message });

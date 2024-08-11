@@ -1,6 +1,6 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { AuthProvider } from "@/providers/Auth";
+import AuthProvider from "@/providers/auth/AuthProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -10,7 +10,6 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }) {
-  // const user = await refreshUser();
   return (
     <html lang="en">
       <body className={inter.className}>

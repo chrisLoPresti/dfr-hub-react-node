@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Input from "@/components/atom/Input";
 import { useUser } from "@/hooks/useUser";
+import Input from "./atoms/Input";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
