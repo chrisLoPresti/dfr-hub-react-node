@@ -90,6 +90,7 @@ export const Map = () => {
             lng: latLng.lng(),
           },
           color: defaultMarkerColor,
+          workspace_id: "030a6a94-3c84-11ef-8ace-570f0d051196",
           // selectedDevice: selectedDevice,
         };
         const { results } = await elevator.getElevationForLocations({

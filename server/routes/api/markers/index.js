@@ -1,7 +1,5 @@
 const MapMarker = require("../../../models/MapMarker");
 
-const io = req.app.get("socketio");
-
 exports.getmarkers = async (req, res, next) => {
   try {
     const markers = await MapMarker.find().populate({
@@ -20,6 +18,8 @@ exports.getmarkers = async (req, res, next) => {
 };
 
 exports.createmarker = async (req, res, next) => {
+  const io = req.app.get("socketio");
+
   try {
     const marker = req.body;
     const user = req.user;
@@ -43,6 +43,8 @@ exports.createmarker = async (req, res, next) => {
 };
 
 exports.updatemarker = async (req, res, next) => {
+  const io = req.app.get("socketio");
+
   try {
     const { created_by, _id, ...marker } = req.body;
 
@@ -61,6 +63,8 @@ exports.updatemarker = async (req, res, next) => {
 };
 
 exports.deletemarker = async (req, res, next) => {
+  const io = req.app.get("socketio");
+
   try {
     const { marker } = req.body;
     const deletedMarker = await MapMarker.findByIdAndDelete(marker._id);
