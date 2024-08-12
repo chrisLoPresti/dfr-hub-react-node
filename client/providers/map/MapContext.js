@@ -35,12 +35,11 @@ export const MapContextProvider = ({ children, initialUser }) => {
   const [map, setMap] = useState(initialUser);
   const [center, setCenter] = useState(initialUser);
   const [elevator, setElevator] = useState(initialUser);
-  const [markers, setMarkers] = useState([]);
   const [isLoading, setLoading] = useState(false);
   const [selectedMapMarker, setSelectedMapMarker] = useState(null);
   const { socket } = useSocket();
 
-  const { data: allMarkers = [], mutate: getAllMarkers } = useSWR(
+  const { data: markers = [], mutate } = useSWR(
     "/api/markers/getmarkers",
     (url) => fetcher(url)
   );
@@ -85,12 +84,12 @@ export const MapContextProvider = ({ children, initialUser }) => {
         //   }
         // );
         // if (res.status === 201) {
-        const { data } = await apiInstance.post(
-          `/api/markers/createmarker`,
-          marker
-        );
+        const { data } = await apiInstance.post(`/api/markers/createmarker`, {
+          ...marker,
+          socket: socket?.id,
+        });
         successToast(`Successfully created Map Marker: ${data.name}!`);
-        setMarkers([...markers, data]);
+        mutate(data);
         setLoading(false);
         return data;
       } catch ({
@@ -103,7 +102,7 @@ export const MapContextProvider = ({ children, initialUser }) => {
         return null;
       }
     },
-    [setLoading, markers]
+    [setLoading, markers, socket]
   );
 
   const deleteMapMarker = useCallback(
@@ -112,10 +111,10 @@ export const MapContextProvider = ({ children, initialUser }) => {
         setLoading(true);
 
         const { data } = await apiInstance.delete(`/api/markers/deletemarker`, {
-          data: { marker },
+          data: { ...marker, socket: socket?.id },
         });
         successToast(`Successfully deleted Map Marker: ${marker.name}`);
-        setMarkers([...markers.filter(({ name }) => name !== marker.name)]);
+        mutate([...markers.filter(({ name }) => name !== marker.name)]);
         setSelectedMapMarker(null);
         setLoading(false);
         return data;
@@ -129,7 +128,7 @@ export const MapContextProvider = ({ children, initialUser }) => {
         return null;
       }
     },
-    [setLoading, markers, setMarkers, setSelectedMapMarker]
+    [setLoading, markers, setSelectedMapMarker, socket]
   );
 
   const updateMapMarker = useCallback(
@@ -138,7 +137,7 @@ export const MapContextProvider = ({ children, initialUser }) => {
         setLoading(true);
         const { data: updatedMarker } = await apiInstance.put(
           `/api/markers/updatemarker`,
-          marker
+          { ...marker, socket: socket?.id }
         );
         successToast(`Successfully updated Map Marker: ${updatedMarker.name}`);
 
@@ -151,7 +150,7 @@ export const MapContextProvider = ({ children, initialUser }) => {
         }
 
         markers[index] = updatedMarker;
-        setMarkers([...markers]);
+        mutate([...markers]);
 
         setLoading(false);
         return updatedMarker;
@@ -165,7 +164,7 @@ export const MapContextProvider = ({ children, initialUser }) => {
         return null;
       }
     },
-    [setLoading, markers, setMarkers, selectedMapMarker, setSelectedMapMarker]
+    [setLoading, markers, selectedMapMarker, setSelectedMapMarker, socket]
   );
 
   useEffect(() => {
@@ -179,6 +178,10 @@ export const MapContextProvider = ({ children, initialUser }) => {
     }
   }, [markers, selectedMapMarker, setSelectedMapMarker]);
 
+  const forceUpdateMarkers = () => {
+    mutate();
+  };
+
   useEffect(() => {
     setCenter({
       lat: coords?.latitude,
@@ -187,17 +190,12 @@ export const MapContextProvider = ({ children, initialUser }) => {
   }, [coords, setCenter]);
 
   useEffect(() => {
-    setMarkers(allMarkers);
-  }, [allMarkers]);
+    socket?.on("markers-updated", forceUpdateMarkers);
 
-  useEffect(() => {
-    if (socket) {
-      socket.on("markers-updated", () => {
-        console.log("update the data");
-        getAllMarkers();
-      });
-    }
-  }, [socket]);
+    return () => {
+      socket?.off("markers-updated", forceUpdateMarkers);
+    };
+  }, []);
 
   return (
     <MapContext.Provider

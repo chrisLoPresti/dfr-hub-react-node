@@ -4,7 +4,7 @@ import { useContext } from "react";
 import { SocketContext } from "@/providers/socket/SocketContext";
 
 export const useSocket = () => {
-  const { socket } = useContext(SocketContext);
+  const { socket, isConnected } = useContext(SocketContext);
 
-  return { socket };
+  return { socket, isConnected };
 };

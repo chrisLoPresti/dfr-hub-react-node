@@ -64,6 +64,7 @@ const LoginForm = () => {
                 required={true}
                 value={email}
                 onChange={setEmail}
+                autoComplete="email"
               />
             </div>
             <div>
@@ -82,6 +83,7 @@ const LoginForm = () => {
                 required={true}
                 value={password}
                 onChange={setPassword}
+                autoComplete="current-password"
               />
             </div>
             <div className="flex items-center justify-between">
