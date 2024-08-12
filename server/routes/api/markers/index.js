@@ -10,7 +10,6 @@ exports.getmarkers = async (req, res, next) => {
 
     return res.status(200).json(markers);
   } catch (error) {
-    console.log(error);
     res.status(401).json({
       message: "Unable to load map markers!",
     });
@@ -19,14 +18,16 @@ exports.getmarkers = async (req, res, next) => {
 
 exports.createmarker = async (req, res, next) => {
   const io = req.app.get("socketio");
-
+  const socket = req.socket;
   try {
     const marker = req.body;
     const user = req.user;
 
     const newMarker = new MapMarker({ ...marker, created_by: user._id });
     const savedMarker = await newMarker.save();
-    io.emit("markers-updated", { message: "Markers data updated" });
+    io.except(socket).emit("markers-updated", {
+      message: "Markers data updated",
+    });
     return res.status(200).json({
       ...savedMarker._doc,
       created_by: {
@@ -48,7 +49,7 @@ exports.createmarker = async (req, res, next) => {
 
 exports.updatemarker = async (req, res, next) => {
   const io = req.app.get("socketio");
-
+  const socket = req.socket;
   try {
     const { created_by, _id, ...marker } = req.body;
 
@@ -57,7 +58,9 @@ exports.updatemarker = async (req, res, next) => {
       { ...marker, updated_at: new Date() },
       { returnDocument: "after" }
     );
-    io.emit("markers-updated", { message: "Markers data updated" });
+    io.except(socket).emit("markers-updated", {
+      message: "Markers data updated",
+    });
     res.status(200).json({ ...updatedMarker._doc, created_by });
   } catch (e) {
     let message = "Unable to update map marker!";
@@ -72,11 +75,13 @@ exports.updatemarker = async (req, res, next) => {
 
 exports.deletemarker = async (req, res, next) => {
   const io = req.app.get("socketio");
-
+  const socket = req.socket;
   try {
-    const { marker } = req.body;
+    const marker = req.body;
     const deletedMarker = await MapMarker.findByIdAndDelete(marker._id);
-    io.emit("markers-updated", { message: "Markers data updated" });
+    io.except(socket).emit("markers-updated", {
+      message: "Markers data updated",
+    });
     res.status(200).json(deletedMarker);
   } catch (e) {
     res.status(400).json({

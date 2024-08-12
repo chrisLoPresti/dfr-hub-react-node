@@ -33,6 +33,8 @@ exports.verifyJWT = async (req, res, next) => {
     }
     // Attach user info to the request for further use
     req.user = user;
+    req.socket = req?.body?.socket;
+    delete req?.body?.socket;
     next();
   } catch {
     // Handle any errors during token verification with a 500 Internal Server Error status

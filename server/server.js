@@ -6,6 +6,7 @@ const router = require("./routes");
 const bodyParser = require("body-parser");
 const cookies = require("cookie-parser");
 const cors = require("cors");
+
 require("dotenv-flow").config();
 
 const app = express();
@@ -39,7 +40,6 @@ app.set("socketio", io);
 io.on("connection", (socket) => {
   console.log(`a user connected with socket id: ${socket.id}`);
 
-  // console.log(socket1);
   socket.on("disconnect", () => {
     console.log("user disconnected: ", socket.userId);
   });
