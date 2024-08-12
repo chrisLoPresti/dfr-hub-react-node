@@ -25,6 +25,8 @@ export const Map = () => {
     setElevator,
     markers,
     createNewMapMarker,
+    setSelectedMapMarker,
+    setCenter,
   } = useMap();
 
   const [searchBox, setSearchBox] = useState(null);
@@ -97,7 +99,11 @@ export const Map = () => {
         });
 
         const elevation = results[0].elevation;
-        createNewMapMarker({ ...marker, elevation });
+        const newMarker = await createNewMapMarker({ ...marker, elevation });
+        if (newMarker) {
+          setSelectedMapMarker(newMarker);
+          setCenter(newMarker.position);
+        }
       }
     },
     [

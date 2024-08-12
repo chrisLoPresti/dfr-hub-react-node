@@ -66,9 +66,9 @@ const MapMarker = ({ marker, lockMarkerDrag }) => {
         fontSize: "18px",
         className: classNames("ml-8 shadow-xl", {
           [`bg-${marker.color}-annotation rounded-md p-1 mb-10`]:
-            selectedMapMarker?.name === marker.name,
+            selectedMapMarker?._id === marker._id,
           ["drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)] mb-8 "]:
-            selectedMapMarker?.name !== marker.name,
+            selectedMapMarker?._id !== marker._id,
         }),
       }}
     />
