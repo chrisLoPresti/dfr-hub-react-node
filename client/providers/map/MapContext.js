@@ -148,7 +148,7 @@ export const MapContextProvider = ({ children, initialUser }) => {
         setMarkers([...markers]);
 
         setLoading(false);
-        return data;
+        return updatedMarker;
       } catch ({
         response: {
           data: { message },
@@ -156,7 +156,7 @@ export const MapContextProvider = ({ children, initialUser }) => {
       }) {
         errorToast(message);
         setLoading(false);
-        return { error: { message } };
+        return null;
       }
     },
     [setLoading, markers, setMarkers, selectedMapMarker, setSelectedMapMarker]

@@ -29,7 +29,7 @@ const Annotations = ({ visible }) => {
             className={classNames(
               "flex justify-left items-center gap-x-2 text-xl py-2 cursor-pointer p-5",
               {
-                "bg-white bg-opacity-10": selectedMapMarker?.name === name,
+                "bg-white bg-opacity-10": selectedMapMarker?._id === _id,
               }
             )}
             onClick={handleSelectMapMarker(currMarker)}

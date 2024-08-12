@@ -45,7 +45,7 @@ const SelectedMarkerDrawer = () => {
   }, [map, selectedMapMarker]);
 
   const onEnterPressed = useCallback(
-    ({ keyCode }) => {
+    async ({ keyCode }) => {
       if (keyCode !== 13) {
         return;
       }
@@ -58,7 +58,7 @@ const SelectedMarkerDrawer = () => {
           lng !== +longitude ||
           ele !== +elevation
         ) {
-          updateMapMarker({
+          const updatedMarker = await updateMapMarker({
             ...selectedMapMarker,
             name,
             position: {
@@ -67,18 +67,26 @@ const SelectedMarkerDrawer = () => {
               elevation: elevation,
             },
           });
+
+          if (!updatedMarker) {
+            refreshState();
+          }
         }
       }
     },
     [selectedMapMarker, latitude, longitude, elevation, name]
   );
 
-  useEffect(() => {
+  const refreshState = useCallback(() => {
     setLatitude(selectedMapMarker?.position?.lat);
     setLongitude(selectedMapMarker?.position?.lng);
     setElevation(selectedMapMarker?.position?.elevation);
     setName(selectedMapMarker?.name);
   }, [selectedMapMarker]);
+
+  useEffect(() => {
+    refreshState();
+  }, [refreshState]);
 
   return (
     <div
