@@ -44,14 +44,16 @@ const SelectedMarkerDrawer = () => {
         "w-72 opacity-100": selectedMapMarker,
       })}
     >
-      <div className="h-full px-5 w-72 bg-tertiary flex flex-col gap-y-2 bg-slate-700">
+      <div className="h-full p-5 w-72 bg-tertiary flex flex-col gap-y-2 bg-slate-700">
         <div className="flex justify-center items-center">
           <label className="text-white" htmlFor="selected-marker-name">
             Selected Map Marker
           </label>
           <button
             onClick={handleDeselectMapMarker}
-            className="text-white ml-auto hover:bg-white hover:bg-opacity-10 rounded-full p-2"
+            className="text-white ml-auto"
+            data-tooltip-id="tooltip"
+            data-tooltip-content="Close Marker"
           >
             <IoCloseOutline className="text-xl" />
           </button>
