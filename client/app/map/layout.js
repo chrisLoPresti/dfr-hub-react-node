@@ -7,13 +7,13 @@ import { SocketContextProvider } from "@/providers/socket/SocketContext";
 import { useEffect } from "react";
 
 export default function MapLayout({ children }) {
-  const { user, logout, isLoading } = useUser();
+  const { user, logout } = useUser();
 
   useEffect(() => {
-    if (!user && !isLoading) {
+    if (!user) {
       logout();
     }
-  }, [user, isLoading]);
+  }, [user]);
 
   return (
     <SocketContextProvider>
