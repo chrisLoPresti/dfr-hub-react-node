@@ -130,7 +130,6 @@ export const MapContextProvider = ({ children, initialUser }) => {
     async (marker) => {
       try {
         setLoading(true);
-
         const { data: updatedMarker } = await apiInstance.put(
           `/api/markers/updatemarker`,
           marker
@@ -150,9 +149,14 @@ export const MapContextProvider = ({ children, initialUser }) => {
 
         setLoading(false);
         return data;
-      } catch (error) {
+      } catch ({
+        response: {
+          data: { message },
+        },
+      }) {
+        errorToast(message);
         setLoading(false);
-        return { error };
+        return { error: { message } };
       }
     },
     [setLoading, markers, setMarkers, selectedMapMarker, setSelectedMapMarker]

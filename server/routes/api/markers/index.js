@@ -36,8 +36,12 @@ exports.createmarker = async (req, res, next) => {
       },
     });
   } catch (error) {
+    let message = "Unable to create map marker!";
+    if (e.code === 11000) {
+      message = `A marker with the name '${req.body.name}' already exists!`;
+    }
     res.status(400).json({
-      message: "Unable to create map marker!",
+      message,
     });
   }
 };
@@ -56,8 +60,12 @@ exports.updatemarker = async (req, res, next) => {
     io.emit("markers-updated", { message: "Markers data updated" });
     res.status(200).json({ ...updatedMarker._doc, created_by });
   } catch (e) {
+    let message = "Unable to update map marker!";
+    if (e.code === 11000) {
+      message = `A marker with the name '${req.body.name}' already exists!`;
+    }
     res.status(400).json({
-      message: "Unable to update map marker!",
+      message,
     });
   }
 };
