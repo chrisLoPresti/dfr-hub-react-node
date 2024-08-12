@@ -93,9 +93,6 @@ export const MapContextProvider = ({ children, initialUser }) => {
         setMarkers([...markers, data]);
         setLoading(false);
         return data;
-        // } else {
-        //   errorToast(`Unable to create map marker: ${marker.name}`);
-        // }
       } catch ({
         response: {
           data: { message },
