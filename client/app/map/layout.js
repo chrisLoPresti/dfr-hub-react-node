@@ -21,7 +21,7 @@ export default function MapLayout({ children }) {
         <header className="sticky top-0 z-20 h-16 bg-slate-900">
           <div className="flex items-center w-full h-full">
             <p className="text-white ml-auto mr-2.5">
-              {user.first_name} {user.last_name}
+              {user?.first_name} {user?.last_name}
             </p>
           </div>
         </header>
