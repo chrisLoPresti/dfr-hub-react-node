@@ -136,7 +136,8 @@ export const Map = () => {
   }, []);
 
   return isLoaded ? (
-    <div className="relative w-full h-full flex">
+    // <div className="relative w-full h-full flex transition-all">
+    <>
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={center}
@@ -229,8 +230,9 @@ export const Map = () => {
         </> */}
       </GoogleMap>
       <SelectedMarkerDrawer />
-    </div>
+    </>
   ) : (
+    // </div>
     <div
       className="flex w-full h-full items-center justify-center gap-3 bg-cover bg-center h-screen text-white text-2xl"
       style={{ backgroundImage: "url('/map_placeholder.jpg')" }}

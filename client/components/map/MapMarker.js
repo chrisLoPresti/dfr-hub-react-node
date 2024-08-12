@@ -42,7 +42,7 @@ const MapMarker = ({ marker, lockMarkerDrag }) => {
     setSelectedMapMarker(marker);
     setCenter(marker.position);
     map.setZoom(15);
-  }, [marker, setSelectedMapMarker, setCenter]);
+  }, [marker, setSelectedMapMarker, setCenter, map]);
 
   return (
     <Marker

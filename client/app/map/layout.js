@@ -27,7 +27,7 @@ export default function MapLayout({ children }) {
             </div>
           </header>
         )}
-        <div className="flex h-[calc(100vh_-_64px)] relative">
+        <div className="flex h-[calc(100vh_-_64px)] relative overflow-hidden bg-slate-700">
           <SideNavigation />
           {children}
         </div>
