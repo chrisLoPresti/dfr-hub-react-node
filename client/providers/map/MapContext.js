@@ -96,10 +96,14 @@ export const MapContextProvider = ({ children, initialUser }) => {
         // } else {
         //   errorToast(`Unable to create map marker: ${marker.name}`);
         // }
-      } catch (error) {
+      } catch ({
+        response: {
+          data: { message },
+        },
+      }) {
         setLoading(false);
-        errorToast(`Unable to create map marker: ${marker.name}`);
-        return { error };
+        errorToast(message);
+        return null;
       }
     },
     [setLoading, markers]
@@ -118,9 +122,14 @@ export const MapContextProvider = ({ children, initialUser }) => {
         setSelectedMapMarker(null);
         setLoading(false);
         return data;
-      } catch (error) {
+      } catch ({
+        response: {
+          data: { message },
+        },
+      }) {
+        errorToast(message);
         setLoading(false);
-        return { error };
+        return null;
       }
     },
     [setLoading, markers, setMarkers, setSelectedMapMarker]
