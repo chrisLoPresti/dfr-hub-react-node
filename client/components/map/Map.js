@@ -14,6 +14,7 @@ import SelectedMarkerDrawer from "./SelectedMarkerDrawer";
 import { useGeolocated } from "react-geolocated";
 import { useMapStore } from "@/stores/mapStore";
 import useMapMarkers from "@/hooks/useMapMarkers";
+import Image from "next/image";
 
 const libraries = ["places"];
 
@@ -222,12 +223,18 @@ export const Map = () => {
       <SelectedMarkerDrawer />
     </>
   ) : (
-    <div
-      className="flex w-full h-full items-center justify-center gap-3 bg-cover bg-center h-screen text-white text-2xl"
-      style={{ backgroundImage: "url('/map_placeholder.jpg')" }}
-    >
-      <FaSpinner className="animate-spin h-5 w-5" />
-      <p>Loading map...</p>
+    <div className="relative text-white flex w-full h-full items-center justify-center gap-3 bg-cover bg-center h-screen text-white text-2xl">
+      <Image
+        src={"/map_placeholder.jpg"}
+        alt="Map loading background image"
+        layout="fill"
+        objectFit="cover"
+        objectPosition="center"
+      />
+      <div className="absolute top-50 left-50 flex flex-col items-center justify-center gap-y-2">
+        <p>Loading map...</p>
+        <FaSpinner className="animate-spin h-5 w-5" />
+      </div>
     </div>
   );
 };

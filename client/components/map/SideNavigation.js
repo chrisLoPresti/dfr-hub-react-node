@@ -26,8 +26,8 @@ const SideNavigation = () => {
   }, []);
 
   return (
-    <div className="w-96 h-full bg-slate-700 text-white shadow-lg flex flex-col justify-between border-t-2 border-slate-500">
-      <div className="flex h-full">
+    <div className="w-content h-full bg-slate-700 text-white shadow-lg flex flex-col justify-between border-t-2 border-slate-500">
+      <div className="flex h-full w-96">
         <ul className="border-r-2 w-2/12 border-slate-500 h-full flex flex-col items-center justify-center">
           <button
             className={classNames(
