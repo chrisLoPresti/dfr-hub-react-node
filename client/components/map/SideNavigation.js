@@ -4,15 +4,15 @@ import { TbDrone, TbMapPin2 } from "react-icons/tb";
 import { BiLogOut } from "react-icons/bi";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import classNames from "classnames";
-import { useUser } from "@/hooks/useUser";
 import Annotations from "./Annotaions";
 import { useCallback, useEffect } from "react";
+import { useUserStore } from "@/stores/userStore";
 
 const SideNavigation = () => {
   const searchParams = useSearchParams();
   const pathName = usePathname();
   const router = useRouter();
-  const { logout } = useUser();
+  const { logout } = useUserStore();
 
   const changeRoute = useCallback(
     (view) => () => {

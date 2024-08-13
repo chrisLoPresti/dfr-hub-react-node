@@ -1,13 +1,17 @@
 "use client";
 
-const { useUser } = require("@/hooks/useUser");
+import { useUserStore } from "@/stores/userStore";
+import { useRouter } from "next/navigation";
+
 const { useEffect } = require("react");
 
 const Logout = () => {
-  const { logout } = useUser();
+  const { logout } = useUserStore();
+  const router = useRouter();
 
   useEffect(() => {
     logout();
+    router.push("/login");
   }, []);
 
   return null;

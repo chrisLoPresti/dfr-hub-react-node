@@ -16,7 +16,6 @@ exports.verifyJWT = async (req, res, next) => {
       sessionToken,
       process.env.REFRESH_TOKEN_SECRET
     );
-
     jwt.verify(
       decodedSessionToken.accessToken,
       process.env.ACCESS_TOKEN_SECRET
@@ -24,7 +23,7 @@ exports.verifyJWT = async (req, res, next) => {
 
     // Get the user linked to the token
     const user = await User.findById(decodedSessionToken?.user?._id).select(
-      "-password -refreshToken"
+      "-password -sessionToken"
     );
 
     // If the user isn't found, deny access with a 404 Not Found status

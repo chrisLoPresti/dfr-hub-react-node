@@ -14,7 +14,6 @@ apiInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     const originalRequest = error.config;
-
     // If the error is a 401 and we have a refresh token, refresh the JWT token
     if (error.response.status === 401) {
       axios
@@ -31,12 +30,16 @@ apiInstance.interceptors.response.use(
               // return response.data;
             })
             .catch((error) => {
-              window.location.href = "/logout";
+              if (typeof window !== "undefined") {
+                window.location.href = "/logout";
+              }
             });
         })
         .catch((error) => {
-          // If there is an error refreshing the token, log out the user
-          window.location.href = "/logout";
+          // If there is an error refreshing the token, log out the user\
+          if (typeof window !== "undefined") {
+            window.location.href = "/logout";
+          }
         });
     }
 

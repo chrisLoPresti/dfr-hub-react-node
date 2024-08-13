@@ -17,15 +17,15 @@ const SelectedMarkerDrawer = () => {
 
   const {
     selectedMapMarker,
-    setSelectedMapMarker,
-    map,
+    selectMapMarker,
+    centerMap,
     deleteMapMarker,
     updateMapMarker,
     isLoading,
   } = useMap();
 
   const handleDeselectMapMarker = () => {
-    setSelectedMapMarker(null);
+    selectMapMarker(null);
   };
 
   const updateMapMarkerColor = useCallback(
@@ -38,11 +38,6 @@ const SelectedMarkerDrawer = () => {
   const handleDeleteMarker = useCallback(() => {
     deleteMapMarker(selectedMapMarker);
   }, [selectedMapMarker, deleteMapMarker]);
-
-  const handleRecenterMap = useCallback(() => {
-    map.setCenter(selectedMapMarker.position);
-    map.setZoom(15);
-  }, [map, selectedMapMarker]);
 
   const onEnterPressed = useCallback(
     async ({ keyCode }) => {
@@ -130,7 +125,7 @@ const SelectedMarkerDrawer = () => {
               <button
                 data-tooltip-id="tooltip"
                 data-tooltip-content=" Recenter"
-                onClick={handleRecenterMap}
+                onClick={centerMap}
                 disabled={isLoading}
               >
                 <MdOutlineCenterFocusWeak className="text-white text-xl" />

@@ -6,11 +6,11 @@ import { useMap } from "@/hooks/useMap";
 
 const MapMarker = ({ marker, lockMarkerDrag }) => {
   const {
-    setSelectedMapMarker,
+    selectMapMarker,
     selectedMapMarker,
     elevator,
     updateMapMarker,
-    setCenter,
+    centerMap,
     map,
   } = useMap();
 
@@ -28,21 +28,21 @@ const MapMarker = ({ marker, lockMarkerDrag }) => {
         ...marker,
         position: { lat: newLat, lng: newLng, elevation },
       });
-      setSelectedMapMarker({
+      selectMapMarker({
         ...marker,
         position: { lat: newLat, lng: newLng, elevation },
       });
-      map.setCenter({ lat: newLat, lng: newLng, elevation });
+      map.centerMap({ lat: newLat, lng: newLng, elevation });
     },
 
-    [updateMapMarker, elevator, marker, setSelectedMapMarker, map]
+    [updateMapMarker, elevator, marker, selectMapMarker, map]
   );
 
   const handleSelectMarker = useCallback(() => {
-    setSelectedMapMarker(marker);
-    setCenter(marker.position);
+    selectMapMarker(marker);
+    centerMap(marker.position);
     map.setZoom(15);
-  }, [marker, setSelectedMapMarker, setCenter, map]);
+  }, [marker, selectMapMarker, centerMap, map]);
 
   return (
     <Marker

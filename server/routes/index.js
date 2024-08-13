@@ -5,7 +5,7 @@ const {
   login,
   logout,
   refreshtoken,
-  validate,
+  loaduserfromsession,
 } = require("./api/auth");
 const {
   getmarkers,
@@ -23,9 +23,10 @@ router.route("/api/markers/createmarker").post(verifyJWT, createmarker);
 
 //get requests
 router.route("/api/auth/refreshtoken").get(refreshtoken);
-router.route("/api/auth/validate").get(validate);
 router.route("/api/markers/getmarkers").get(verifyJWT, getmarkers);
-
+router
+  .route("/api/auth/loaduserfromsession")
+  .get(verifyJWT, loaduserfromsession);
 //put requests
 router.route("/api/markers/updatemarker").put(verifyJWT, updatemarker);
 

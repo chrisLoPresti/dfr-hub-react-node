@@ -34,10 +34,10 @@ const UserSchema = new Schema(
       type: String,
       default: "",
     },
-    refreshToken: {
+    sessionToken: {
       type: String,
     },
-    email_verified: {
+    emailVerified: {
       type: Boolean,
       default: false,
     },
@@ -63,8 +63,7 @@ UserSchema.methods.isPasswordCorrect = async function (password) {
 UserSchema.methods.generateAccessToken = function () {
   return jwt.sign(
     {
-      _id: this._id,
-      email: this.email,
+      user: { _id: this._id.toString(), email: this.email },
     },
     process.env.ACCESS_TOKEN_SECRET,
     {
@@ -74,10 +73,11 @@ UserSchema.methods.generateAccessToken = function () {
 };
 
 // Method to generate a refresh token
-UserSchema.methods.generateRefreshToken = function () {
+UserSchema.methods.generateSessionToken = function (accessToken) {
   return jwt.sign(
     {
-      _id: this._id,
+      user: { _id: this._id.toString(), email: this.email },
+      accessToken,
     },
     process.env.REFRESH_TOKEN_SECRET,
     {

@@ -3,11 +3,11 @@
 import { apiInstance } from "@/lib/api";
 import { useJsApiLoader } from "@react-google-maps/api";
 import { createContext, useCallback, useEffect, useState } from "react";
-import { useGeolocated } from "react-geolocated";
 import useSWR from "swr";
 import themeConfig from "@/tailwind.config";
 import { errorToast, successToast } from "@/components/atoms/Toast";
 import { useSocket } from "@/hooks/useSocket";
+import { useMapStore } from "@/stores/mapStore";
 
 const libraries = ["places"];
 
@@ -31,12 +31,19 @@ const fetcher = async (url) => {
   return data;
 };
 
-export const MapContextProvider = ({ children, initialUser }) => {
-  const [map, setMap] = useState(initialUser);
-  const [center, setCenter] = useState(initialUser);
-  const [elevator, setElevator] = useState(initialUser);
+export const MapContextProvider = ({ children }) => {
+  const {
+    map,
+    setMap,
+    center,
+    centerMap,
+    elevator,
+    setElevator,
+    selectedMapMarker,
+    selectMapMarker,
+  } = useMapStore();
+
   const [isLoading, setLoading] = useState(false);
-  const [selectedMapMarker, setSelectedMapMarker] = useState(null);
   const { socket } = useSocket();
 
   const { data: markers = [], mutate } = useSWR(
@@ -48,20 +55,6 @@ export const MapContextProvider = ({ children, initialUser }) => {
     id: "google-map-script",
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP_API || "",
     libraries,
-  });
-
-  const { coords } = useGeolocated({
-    positionOptions: {
-      enableHighAccuracy: true,
-      maximumAge: 0,
-      timeout: Infinity,
-    },
-    watchPosition: false,
-    userDecisionTimeout: null,
-    suppressLocationOnMount: false,
-    // geolocationProvider: navigator.geolocation,
-    isOptimisticGeolocationEnabled: true,
-    watchLocationPermissionChange: false,
   });
 
   const createNewMapMarker = useCallback(
@@ -115,7 +108,7 @@ export const MapContextProvider = ({ children, initialUser }) => {
         });
         successToast(`Successfully deleted Map Marker: ${marker.name}`);
         mutate([...markers.filter(({ name }) => name !== marker.name)]);
-        setSelectedMapMarker(null);
+        selectMapMarker(null);
         setLoading(false);
         return data;
       } catch ({
@@ -128,7 +121,7 @@ export const MapContextProvider = ({ children, initialUser }) => {
         return null;
       }
     },
-    [setLoading, markers, setSelectedMapMarker, socket]
+    [setLoading, markers, selectMapMarker, socket]
   );
 
   const updateMapMarker = useCallback(
@@ -146,7 +139,7 @@ export const MapContextProvider = ({ children, initialUser }) => {
         );
 
         if (selectedMapMarker.name === updatedMarker.name) {
-          setSelectedMapMarker(updatedMarker);
+          selectMapMarker(updatedMarker);
         }
 
         markers[index] = updatedMarker;
@@ -164,7 +157,7 @@ export const MapContextProvider = ({ children, initialUser }) => {
         return null;
       }
     },
-    [setLoading, markers, selectedMapMarker, setSelectedMapMarker, socket]
+    [setLoading, markers, selectedMapMarker, selectMapMarker, socket]
   );
 
   useEffect(() => {
@@ -173,21 +166,14 @@ export const MapContextProvider = ({ children, initialUser }) => {
         ({ _id }) => selectedMapMarker._id === _id
       );
       if (!markerStillExists) {
-        setSelectedMapMarker(null);
+        selectMapMarker(null);
       }
     }
-  }, [markers, selectedMapMarker, setSelectedMapMarker]);
+  }, [markers, selectedMapMarker, selectMapMarker]);
 
   const forceUpdateMarkers = () => {
     mutate();
   };
-
-  useEffect(() => {
-    setCenter({
-      lat: coords?.latitude,
-      lng: coords?.longitude,
-    });
-  }, [coords, setCenter]);
 
   useEffect(() => {
     socket?.on("markers-updated", forceUpdateMarkers);
@@ -204,7 +190,7 @@ export const MapContextProvider = ({ children, initialUser }) => {
         map,
         setMap,
         center,
-        setCenter,
+        centerMap,
         isLoaded,
         elevator,
         setElevator,
@@ -213,7 +199,7 @@ export const MapContextProvider = ({ children, initialUser }) => {
         createNewMapMarker,
         createNewMapMarker,
         selectedMapMarker,
-        setSelectedMapMarker,
+        selectMapMarker,
         deleteMapMarker,
         updateMapMarker,
       }}

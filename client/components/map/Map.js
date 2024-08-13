@@ -8,6 +8,7 @@ import MapMarker from "./MapMarker";
 import CreatePinPointButton from "./CreatePinPointButton";
 import LockMarkersButton from "./LockMarkersButton";
 import SelectedMarkerDrawer from "./SelectedMarkerDrawer";
+import { useGeolocated } from "react-geolocated";
 
 const containerStyle = {
   width: "100%",
@@ -25,8 +26,8 @@ export const Map = () => {
     setElevator,
     markers,
     createNewMapMarker,
-    setSelectedMapMarker,
-    setCenter,
+    selectMapMarker,
+    centerMap,
   } = useMap();
 
   const [searchBox, setSearchBox] = useState(null);
@@ -38,20 +39,20 @@ export const Map = () => {
 
   //   const { selectedDevice } = useDeviceContext();
 
-  const onMapLoad = useCallback((map) => {
+  const onMapLoad = (map) => {
     setMap(map);
     const newElevator = new google.maps.ElevationService();
     setElevator(newElevator);
-  }, []);
+  };
 
-  const onSearchBoxLoad = useCallback((newSearchBox) => {
+  const onSearchBoxLoad = (newSearchBox) => {
     setSearchBox(newSearchBox);
-  }, []);
+  };
 
-  const onUnmount = useCallback(() => {
+  const onUnmount = () => {
     setMap(null);
     setElevator(null);
-  }, []);
+  };
 
   const toggleEnablePinPoints = () => {
     if (enablePinPoints) {
@@ -101,8 +102,8 @@ export const Map = () => {
         const elevation = results[0].elevation;
         const newMarker = await createNewMapMarker({ ...marker, elevation });
         if (newMarker) {
-          setSelectedMapMarker(newMarker);
-          setCenter(newMarker.position);
+          selectMapMarker(newMarker);
+          centerMap(newMarker.position);
         }
       }
     },
@@ -136,6 +137,27 @@ export const Map = () => {
     setDefaultMarkerColor(color);
   };
 
+  const { coords } = useGeolocated({
+    positionOptions: {
+      enableHighAccuracy: true,
+      maximumAge: 0,
+      timeout: Infinity,
+    },
+    watchPosition: false,
+    userDecisionTimeout: null,
+    suppressLocationOnMount: false,
+    // geolocationProvider: navigator.geolocation,
+    isOptimisticGeolocationEnabled: true,
+    watchLocationPermissionChange: false,
+  });
+
+  useEffect(() => {
+    centerMap({
+      lat: coords?.latitude,
+      lng: coords?.longitude,
+    });
+  }, [coords, centerMap]);
+
   useEffect(() => {
     const storedMapTypeId = localStorage?.getItem("mapTypeId") ?? "hybrid";
     setMapTypeId(storedMapTypeId);
@@ -147,7 +169,7 @@ export const Map = () => {
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={center}
-        zoom={10}
+        zoom={15}
         onLoad={onMapLoad}
         onUnmount={onUnmount}
         onClick={dropMarker}

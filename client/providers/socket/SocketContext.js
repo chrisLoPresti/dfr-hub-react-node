@@ -1,9 +1,9 @@
 "use client";
 
 import { warnToast } from "@/components/atoms/Toast";
-import { useUser } from "@/hooks/useUser";
 import { createContext, useEffect, useState } from "react";
 import { socket } from "@/lib/socket";
+import { useUserStore } from "@/stores/userStore";
 
 export const SocketContext = createContext({
   socket: null,
@@ -12,7 +12,7 @@ export const SocketContext = createContext({
 export const SocketContextProvider = ({ children }) => {
   const [isConnected, setIsConnected] = useState(false);
   const [transport, setTransport] = useState("N/A");
-  const { user, logout } = useUser();
+  const { user, logout } = useUserStore();
 
   useEffect(() => {
     if (socket.connected) {

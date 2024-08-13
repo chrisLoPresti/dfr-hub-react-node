@@ -5,16 +5,16 @@ import Checkbox from "react-custom-checkbox";
 import { TbDiamonds } from "react-icons/tb";
 
 const Annotations = ({ visible }) => {
-  const { markers, setSelectedMapMarker, setCenter, selectedMapMarker, map } =
+  const { markers, selectMapMarker, centerMap, selectedMapMarker, map } =
     useMap();
 
   const handleSelectMapMarker = useCallback(
     (marker) => () => {
       map.setZoom(15);
-      setCenter(marker.position);
-      setSelectedMapMarker(marker);
+      centerMap(marker.position);
+      selectMapMarker(marker);
     },
-    [map, setSelectedMapMarker]
+    [map, selectMapMarker]
   );
   return visible ? (
     <div className="flex flex-col truncate">

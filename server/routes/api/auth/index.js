@@ -7,44 +7,26 @@ const options = {
   sameSite: "Strict",
 };
 
-const generateAccessAndRefreshTokens = async (userId) => {
+const generateSessionToken = async (userId) => {
   try {
     // Find the user by ID in the database
     const user = await User.findById(userId);
 
     // Generate an access token and a refresh token
     const accessToken = user.generateAccessToken();
-    const refreshToken = user.generateRefreshToken();
+    const sessionToken = user.generateSessionToken(accessToken);
 
     // Save the refresh token to the user in the database
-    user.refreshToken = refreshToken;
+    user.sessionToken = sessionToken;
     await user.save({ validateBeforeSave: false });
 
     // Return the generated tokens
-    return { accessToken, refreshToken };
+    return { sessionToken };
   } catch (error) {
     // Handle any errors that occur during the process
     throw new Error(error.message);
   }
 };
-
-const generateSessionToken = async ({ user, accessToken, refreshToken }) => {
-  const sessionToken = jwt.sign(
-    {
-      user,
-      accessToken,
-      refreshToken,
-    },
-    process.env.REFRESH_TOKEN_SECRET,
-    {
-      expiresIn: "15d",
-    }
-  );
-
-  return sessionToken;
-};
-
-exports.generateAccessAndRefreshTokens = generateAccessAndRefreshTokens;
 
 exports.register = async (req, res, next) => {
   const { first_name, last_name, email, phone, password } = req.body;
@@ -98,18 +80,10 @@ exports.login = async (req, res, next) => {
         .json({ message: "Invalid username and password combination" });
     }
 
-    const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
-      user._id
-    );
+    const { sessionToken } = await generateSessionToken(user._id);
 
     delete user._doc.password;
-    delete user._doc.refreshToken;
-
-    const sessionToken = await generateSessionToken({
-      user,
-      accessToken,
-      refreshToken,
-    });
+    delete user._doc.sessionToken;
 
     res.status(200).cookie("dfr_hub_session", sessionToken, options).json(user);
   } catch (e) {
@@ -125,7 +99,7 @@ exports.logout = async (req, res, next) => {
   await User.findByIdAndUpdate(
     _id,
     {
-      $set: { refreshToken: undefined },
+      $set: { sessionToken: undefined },
     },
     { new: true }
   );
@@ -136,7 +110,8 @@ exports.logout = async (req, res, next) => {
 
 exports.refreshtoken = async (req, res, next) => {
   // Retrieve the refresh token from cookies or request body
-  const incomingSessionToken = req.cookies?.["dfr_hub_session"];
+
+  const incomingSessionToken = req.cookies["dfr_hub_session"];
   // If no refresh token is present, deny access with a 401 Unauthorized status
   if (!incomingSessionToken) {
     return res.status(401).json({ message: "Session token not found" });
@@ -149,11 +124,6 @@ exports.refreshtoken = async (req, res, next) => {
       process.env.REFRESH_TOKEN_SECRET
     );
 
-    jwt.verify(
-      decodedSessionToken.refreshToken,
-      process.env.REFRESH_TOKEN_SECRET
-    );
-
     // Find the user associated with the refresh token
     const user = await User.findById(decodedSessionToken?.user?._id);
 
@@ -161,21 +131,14 @@ exports.refreshtoken = async (req, res, next) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
+
     // If the stored refresh token doesn't match the incoming one, deny access with a 401 Unauthorized status
-    if (user?.refreshToken !== decodedSessionToken.refreshToken) {
-      return res.status(401).json({ message: "Refresh token is incorrect" });
+    if (user?.sessionToken !== incomingSessionToken) {
+      return res.status(401).json({ message: "Session token is incorrect" });
     }
 
     // Generate new access and refresh tokens for the user
-    const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
-      user._id
-    );
-
-    const sessionToken = await generateSessionToken({
-      user,
-      accessToken,
-      refreshToken,
-    });
+    const { sessionToken } = await generateSessionToken(user._id);
 
     // Set the new tokens in cookies
     return res
@@ -188,25 +151,37 @@ exports.refreshtoken = async (req, res, next) => {
   }
 };
 
-exports.validate = async (req, res, next) => {
+exports.loaduserfromsession = async (req, res, next) => {
   // Retrieve the refresh token from cookies or request body
-  const incomingSessionToken = req.cookies?.["dfr_hub_session"];
+  const incomingSessionToken = req.cookies["dfr_hub_session"];
   // If no refresh token is present, deny access with a 401 Unauthorized status
   if (!incomingSessionToken) {
     return res.status(401).json({ message: "Session token not found" });
   }
-
   try {
     // Verify the incoming refresh token using the secret key
-    const decodedSession = jwt.verify(
+    const decodedSessionToken = jwt.verify(
       incomingSessionToken,
       process.env.REFRESH_TOKEN_SECRET
     );
 
+    // Find the user associated with the refresh token
+    const user = await User.findById(decodedSessionToken?.user?._id);
+    // If the user isn't found, deny access with a 404 Not Found status
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // If the stored refresh token doesn't match the incoming one, deny access with a 401 Unauthorized status
+    if (user?.sessionToken !== incomingSessionToken) {
+      return res.status(401).json({ message: "Session token is incorrect" });
+    }
+
+    // Set the new tokens in cookies
     return res
       .status(200)
       .cookie("dfr_hub_session", incomingSessionToken, options)
-      .json(decodedSession.user);
+      .json(user);
   } catch (error) {
     // Handle any errors during token refresh with a 500 Internal Server Error status
     return res.status(500).json({ message: error.message });

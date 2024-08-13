@@ -1,8 +1,10 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
-import AuthProvider from "@/providers/auth/AuthProvider";
 import ToastContainer from "@/components/atoms/Toast";
 import Tooltip from "@/components/atoms/Tooltip";
+import AuthInitializer from "@/components/AuthInitializer";
+import { apiInstance } from "@/lib/api";
+import { cookies } from "next/headers";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -12,10 +14,33 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }) {
+  const loadUserFromSession = async () => {
+    "use server";
+    const sessionCookie = cookies().get("dfr_hub_session");
+
+    if (!sessionCookie) {
+      return { user: null, sessionCookie };
+    }
+
+    try {
+      const res = await apiInstance.get("/api/auth/loaduserfromsession", {
+        headers: {
+          Cookie: `${sessionCookie.name}=${sessionCookie.value};`,
+        },
+      });
+
+      return { user: res.data, sessionCookie };
+    } catch {
+      return { user: null, sessionCookie };
+    }
+  };
+
+  const session = await loadUserFromSession();
+
   return (
     <html lang="en">
       <body className={inter.className}>
-        <AuthProvider>{children}</AuthProvider>
+        <AuthInitializer session={session}>{children}</AuthInitializer>
         <ToastContainer />
         <Tooltip id="tooltip" className="z-50" />
       </body>
