@@ -3,7 +3,7 @@ import useSWR from "swr";
 import { errorToast, successToast } from "@/components/atoms/Toast";
 import { useMapStore } from "@/stores/mapStore";
 import { apiInstance } from "@/lib/api";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { useMapMarkerStore } from "@/stores/mapMarkerStore";
 import { useSocket } from "./useSocket";
 
@@ -163,6 +163,26 @@ const useMapMarkers = () => {
     centerMap(marker?.position);
   };
 
+  const updateSelectedMarker = useCallback(() => {
+    const marker = markers.find(({ _id }) => selectedMapMarker._id === _id);
+    selectMapMarker(marker);
+  }, [selectMapMarker, markers]);
+
+  useEffect(() => {
+    if (selectedMapMarker) {
+      updateSelectedMarker();
+    }
+  }, [markers, selectedMapMarker]);
+
+  useEffect(() => {
+    const updateMarkers = () => mutate();
+
+    socket?.on("markers-updated", updateMarkers);
+    return () => {
+      socket?.off("markers-updated", updateMarkers);
+    };
+  }, []);
+
   return {
     isAPILoading,
     selectedMapMarker,
@@ -180,6 +200,7 @@ const useMapMarkers = () => {
     deleteMapMarker,
     createNewMapMarker,
     markers,
+    isLoading: isAPILoading || isLoading,
   };
 };
 
