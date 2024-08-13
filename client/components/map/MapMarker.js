@@ -18,19 +18,16 @@ const MapMarker = ({ marker }) => {
     async ({ latLng }) => {
       const newLat = latLng.lat();
       const newLng = latLng.lng();
+      const position = { lat: newLat, lng: newLng };
       const { results } = await elevator.getElevationForLocations({
-        locations: [latLng],
+        locations: [position],
       });
 
       const elevation = results[0].elevation;
       //call to update marker
       await updateMapMarker({
         ...marker,
-        position: { lat: newLat, lng: newLng, elevation },
-      });
-      selectMapMarker({
-        ...marker,
-        position: { lat: newLat, lng: newLng, elevation },
+        position: { ...position, elevation },
       });
     },
 
@@ -45,7 +42,7 @@ const MapMarker = ({ marker }) => {
     <Marker
       position={marker.position}
       markerId={marker.name}
-      draggable={canDragMarkers}
+      draggable={canDragMarkers && !marker.locked}
       onDragEnd={updatePosition}
       onClick={handleSelectMarker}
       icon={{

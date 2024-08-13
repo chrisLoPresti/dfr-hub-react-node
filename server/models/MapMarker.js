@@ -21,6 +21,10 @@ const MapMarkerSchema = new Schema(
         type: Number,
       },
     },
+    locked: {
+      type: Boolean,
+      default: false,
+    },
     color: {
       type: String,
     },

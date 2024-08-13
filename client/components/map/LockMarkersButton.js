@@ -11,8 +11,8 @@ const LockMarkersButton = () => {
         "rounded-sm p-2 shadow-lg bg-white border-2 ml-2 absolute top-32 right-2.5 flex",
         {
           "text-blue-annotation border-blue-annotation bg-gradient-to-tr from-white from-80% to-blue-annotation to-90%":
-            !canDragMarkers,
-          "border-white": canDragMarkers,
+            canDragMarkers,
+          "border-white": !canDragMarkers,
         }
       )}
       onClick={toggleCanDragMarkers}

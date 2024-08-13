@@ -20,7 +20,9 @@ export const useMapStore = create(
         }
         set((state) => {
           if (state.map) {
-            state.map.setZoom(15);
+            if (state.map.getZoom() < 15) {
+              state.map.setZoom(15);
+            }
             if (
               position.lat === state.center.lat &&
               position.lng === state.center.lng &&

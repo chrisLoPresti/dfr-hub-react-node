@@ -7,6 +7,8 @@ import { MdOutlineCenterFocusWeak, MdOutlineDelete } from "react-icons/md";
 import { useCallback, useEffect, useState } from "react";
 import Input from "../atoms/Input";
 import { FaSpinner } from "react-icons/fa";
+import { IoLockOpenOutline, IoLockClosedOutline } from "react-icons/io5";
+
 import { useMapStore } from "@/stores/mapStore";
 import useMapMarkers from "@/hooks/useMapMarkers";
 
@@ -73,6 +75,13 @@ const SelectedMarkerDrawer = () => {
     [selectedMapMarker, latitude, longitude, elevation, name]
   );
 
+  const toggleLockMapMarker = useCallback(() => {
+    updateMapMarker({
+      ...selectedMapMarker,
+      locked: !selectedMapMarker.locked,
+    });
+  }, [selectedMapMarker, updateMapMarker]);
+
   const refreshState = useCallback(() => {
     setLatitude(selectedMapMarker?.position?.lat);
     setLongitude(selectedMapMarker?.position?.lng);
@@ -105,7 +114,7 @@ const SelectedMarkerDrawer = () => {
             className="text-white ml-auto"
             data-tooltip-id="tooltip"
             data-tooltip-content="Close Marker"
-            disabled={isLoading}
+            disabled={isLoading || selectedMapMarker?.locked}
           >
             <IoCloseOutline className="text-xl" />
           </button>
@@ -122,11 +131,30 @@ const SelectedMarkerDrawer = () => {
               type="text"
               value={name || "marker name..."}
               className="w-full shadow-inner text-sm p-2 rounded-sm"
-              disabled={isLoading}
+              disabled={isLoading || selectedMapMarker?.locked}
               onChange={setName}
               onKeyDown={onEnterPressed}
+              data-tooltip-id="tooltip"
+              data-tooltip-content={selectedMapMarker?.name}
             />
             <div className="flex items-center justify-center gap-x-2 ml-2">
+              <button
+                onClick={toggleLockMapMarker}
+                className="text-white text-xl"
+                data-tooltip-id="tooltip"
+                data-tooltip-content={
+                  selectedMapMarker?.locked
+                    ? "Unlock map marker"
+                    : "Lock map marker"
+                }
+                disabled={isLoading}
+              >
+                {selectedMapMarker?.locked ? (
+                  <IoLockClosedOutline />
+                ) : (
+                  <IoLockOpenOutline />
+                )}
+              </button>
               <button
                 data-tooltip-id="tooltip"
                 data-tooltip-content=" Recenter"
@@ -139,7 +167,7 @@ const SelectedMarkerDrawer = () => {
                 data-tooltip-id="tooltip"
                 data-tooltip-content=" Delete"
                 onClick={handleDeleteMarker}
-                disabled={isLoading}
+                disabled={isLoading || selectedMapMarker?.locked}
               >
                 <MdOutlineDelete className="text-white text-xl" />
               </button>
@@ -149,7 +177,7 @@ const SelectedMarkerDrawer = () => {
             color={selectedMapMarker?.color}
             changeColor={updateMapMarkerColor}
             className="bg-transparent"
-            disabled={isLoading}
+            disabled={isLoading || selectedMapMarker?.locked}
           />
           <div className="text-sm w-full flex flex-col gap-y-2">
             <div className="flex items-center w-full justify-between">
@@ -158,7 +186,7 @@ const SelectedMarkerDrawer = () => {
                 type="text"
                 value={longitude || "longitude..."}
                 className="w-2/3 p-2 shadow-inner text-sm rounded-sm"
-                disabled={isLoading}
+                disabled={isLoading || selectedMapMarker?.locked}
                 onChange={setLongitude}
                 onKeyDown={onEnterPressed}
               />
@@ -169,7 +197,7 @@ const SelectedMarkerDrawer = () => {
                 type="text"
                 value={latitude || "latitude..."}
                 className="w-2/3 p-2 shadow-inner text-sm rounded-sm"
-                disabled={isLoading}
+                disabled={isLoading || selectedMapMarker?.locked}
                 onChange={setLatitude}
                 onKeyDown={onEnterPressed}
               />
@@ -180,7 +208,7 @@ const SelectedMarkerDrawer = () => {
                 type="text"
                 value={elevation || "elevation..."}
                 className="w-2/3 p-2 shadow-inner text-sm rounded-sm"
-                disabled={isLoading}
+                disabled={isLoading || selectedMapMarker?.locked}
                 onChange={setElevation}
                 onKeyDown={onEnterPressed}
               />

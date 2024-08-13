@@ -21,9 +21,11 @@ const ColorButtons = ({ className, color, changeColor, disabled }) => {
     <div
       className={classNames("bg-white flex shadow-sm rounded-sm p-2 gap-x-2", {
         [className]: className,
+        "opacity-30": disabled,
       })}
       data-tooltip-id="tooltip"
       data-tooltip-content="Change default marker color"
+      disabled={disabled}
     >
       {Object.keys(markerColors).map((key) => (
         <button
