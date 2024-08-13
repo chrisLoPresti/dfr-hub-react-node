@@ -230,6 +230,7 @@ export const Map = () => {
         layout="fill"
         objectFit="cover"
         objectPosition="center"
+        priority={true}
       />
       <div className="absolute top-50 left-50 flex flex-col items-center justify-center gap-y-2">
         <p>Loading map...</p>
