@@ -1,14 +1,21 @@
 "use client";
 
 import { useEffect, useCallback, useState } from "react";
-import { GoogleMap, StandaloneSearchBox } from "@react-google-maps/api";
+import {
+  GoogleMap,
+  StandaloneSearchBox,
+  useJsApiLoader,
+} from "@react-google-maps/api";
 import { FaSpinner } from "react-icons/fa6";
-import { useMap } from "@/hooks/useMap";
 import MapMarker from "./MapMarker";
 import CreatePinPointButton from "./CreatePinPointButton";
 import LockMarkersButton from "./LockMarkersButton";
 import SelectedMarkerDrawer from "./SelectedMarkerDrawer";
 import { useGeolocated } from "react-geolocated";
+import { useMapStore } from "@/stores/mapStore";
+import useMapMarkers from "@/hooks/useMapMarkers";
+
+const libraries = ["places"];
 
 const containerStyle = {
   width: "100%",
@@ -17,24 +24,25 @@ const containerStyle = {
 
 export const Map = () => {
   const {
-    isLoading,
-    map,
     setMap,
-    center,
-    isLoaded,
-    elevator,
     setElevator,
-    markers,
+    setMapTypeId,
+    mapTypeId,
+    centerMap,
+    center,
+    elevator,
+  } = useMapStore();
+
+  const {
     createNewMapMarker,
     selectMapMarker,
-    centerMap,
-  } = useMap();
+    defaultMarkerColor,
+    markers,
+    isLoading,
+    canCreateMapMarkers,
+  } = useMapMarkers();
 
   const [searchBox, setSearchBox] = useState(null);
-  const [enablePinPoints, setEnablePinPoints] = useState(false);
-  const [lockMarkerDrag, setLockMarkerDrag] = useState(true);
-  const [mapTypeId, setMapTypeId] = useState(null);
-  const [defaultMarkerColor, setDefaultMarkerColor] = useState("blue");
   //   const [liveStreamLink, setLiveStreamLink] = useState(null);
 
   //   const { selectedDevice } = useDeviceContext();
@@ -54,88 +62,61 @@ export const Map = () => {
     setElevator(null);
   };
 
-  const toggleEnablePinPoints = () => {
-    if (enablePinPoints) {
-      map.setOptions({ draggableCursor: "" });
-    } else {
-      map.setOptions({ draggableCursor: "crosshair" });
-    }
-    setEnablePinPoints(!enablePinPoints);
-  };
-
-  const onAddressFound = useCallback(
-    (e) => {
-      const address = searchBox.getPlaces();
-
-      createNewMapMarker({
-        name: address[0].name,
-        latLng: address[0].geometry.location,
-        color: defaultMarkerColor,
-        // selectedDevice,
-      });
-    },
-    [
-      searchBox,
-      createNewMapMarker,
-      defaultMarkerColor,
-      // selectedDevice
-    ]
-  );
+  const onAddressFound = useCallback(() => {
+    const address = searchBox.getPlaces();
+    const latLng = address[0].geometry.location;
+    createNewMapMarker({
+      name: address[0].name,
+      position: {
+        lat: latLng.lat(),
+        lng: latLng.lng(),
+      },
+      workspace_id: "030a6a94-3c84-11ef-8ace-570f0d051196",
+      // selectedDevice,
+    });
+  }, [
+    searchBox,
+    createNewMapMarker,
+    // selectedDevice
+  ]);
 
   const dropMarker = useCallback(
     async ({ latLng, name }) => {
-      if (enablePinPoints && !isLoading) {
+      if (canCreateMapMarkers && !isLoading) {
         const marker = {
           name: name || `new pin ${new Date().toLocaleString()}`, // `new pin ${uuidv4()}`,
           position: {
             lat: latLng.lat(),
             lng: latLng.lng(),
           },
-          color: defaultMarkerColor,
           workspace_id: "030a6a94-3c84-11ef-8ace-570f0d051196",
           // selectedDevice: selectedDevice,
         };
-        const { results } = await elevator.getElevationForLocations({
-          locations: [marker.position],
-        });
 
-        const elevation = results[0].elevation;
-        const newMarker = await createNewMapMarker({ ...marker, elevation });
+        const newMarker = await createNewMapMarker(marker);
         if (newMarker) {
           selectMapMarker(newMarker);
-          centerMap(newMarker.position);
         }
       }
     },
     [
       createNewMapMarker,
-      defaultMarkerColor,
-      enablePinPoints,
+      canCreateMapMarkers,
       isLoading,
       elevator,
       // selectedDevice,
     ]
   );
 
-  const storeMapTypeId = useCallback(() => {
-    const newMapTypeId = map?.getMapTypeId() ?? mapTypeId;
-    if (newMapTypeId !== mapTypeId) {
-      localStorage.setItem("mapTypeId", newMapTypeId);
-      setMapTypeId(newMapTypeId);
-    }
-  }, [map, mapTypeId]);
-
-  const toggleLockMarkerDrag = () => {
-    setLockMarkerDrag(!lockMarkerDrag);
-  };
-
   //   const closeLiveStreamLink = () => {
   //     setLiveStreamLink(null);
   //   };
 
-  const changeDefaultMarkerColor = (color) => {
-    setDefaultMarkerColor(color);
-  };
+  const { isLoaded } = useJsApiLoader({
+    id: "google-map-script",
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP_API || "",
+    libraries,
+  });
 
   const { coords } = useGeolocated({
     positionOptions: {
@@ -158,13 +139,7 @@ export const Map = () => {
     });
   }, [coords, centerMap]);
 
-  useEffect(() => {
-    const storedMapTypeId = localStorage?.getItem("mapTypeId") ?? "hybrid";
-    setMapTypeId(storedMapTypeId);
-  }, []);
-
   return isLoaded ? (
-    // <div className="relative w-full h-full flex transition-all">
     <>
       <GoogleMap
         mapContainerStyle={containerStyle}
@@ -173,36 +148,23 @@ export const Map = () => {
         onLoad={onMapLoad}
         onUnmount={onUnmount}
         onClick={dropMarker}
-        onMapTypeIdChanged={storeMapTypeId}
+        onMapTypeIdChanged={setMapTypeId}
         options={{
           fullscreenControl: false,
           mapTypeId: mapTypeId,
           rotateControl: true,
           streetViewControl: false,
           minZoom: 5,
-          // disableDefaultUI: true
+          draggableCursor: canCreateMapMarkers ? "crosshair" : "",
         }}
       >
         <>
           {markers.map((marker) => (
-            <MapMarker
-              key={marker._id}
-              marker={marker}
-              lockMarkerDrag={lockMarkerDrag}
-            />
+            <MapMarker key={marker._id} marker={marker} />
           ))}
-          <CreatePinPointButton
-            enablePinPoints={enablePinPoints}
-            toggleEnablePinPoints={toggleEnablePinPoints}
-            color={defaultMarkerColor}
-            changeColor={changeDefaultMarkerColor}
-            defaultMarkerColor={defaultMarkerColor}
-          />
+          <CreatePinPointButton />
         </>
-        <LockMarkersButton
-          toggleLockMarkerDrag={toggleLockMarkerDrag}
-          lockMarkerDrag={lockMarkerDrag}
-        />
+        <LockMarkersButton />
         <StandaloneSearchBox
           onPlacesChanged={onAddressFound}
           onLoad={onSearchBoxLoad}
@@ -260,7 +222,6 @@ export const Map = () => {
       <SelectedMarkerDrawer />
     </>
   ) : (
-    // </div>
     <div
       className="flex w-full h-full items-center justify-center gap-3 bg-cover bg-center h-screen text-white text-2xl"
       style={{ backgroundImage: "url('/map_placeholder.jpg')" }}

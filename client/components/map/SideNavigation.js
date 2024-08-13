@@ -6,13 +6,13 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import classNames from "classnames";
 import Annotations from "./Annotaions";
 import { useCallback, useEffect } from "react";
-import { useUserStore } from "@/stores/userStore";
+import { useAuth } from "@/hooks/useAuth";
 
 const SideNavigation = () => {
   const searchParams = useSearchParams();
   const pathName = usePathname();
   const router = useRouter();
-  const { logout } = useUserStore();
+  const { logout } = useAuth();
 
   const changeRoute = useCallback(
     (view) => () => {

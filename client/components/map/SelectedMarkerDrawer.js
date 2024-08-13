@@ -1,6 +1,5 @@
 "use client";
 
-import { useMap } from "@/hooks/useMap";
 import classNames from "classnames";
 import ColorButtons from "./ColorButtons";
 import { IoCloseOutline } from "react-icons/io5";
@@ -8,6 +7,8 @@ import { MdOutlineCenterFocusWeak, MdOutlineDelete } from "react-icons/md";
 import { useCallback, useEffect, useState } from "react";
 import Input from "../atoms/Input";
 import { FaSpinner } from "react-icons/fa";
+import { useMapStore } from "@/stores/mapStore";
+import useMapMarkers from "@/hooks/useMapMarkers";
 
 const SelectedMarkerDrawer = () => {
   const [longitude, setLongitude] = useState(null);
@@ -15,14 +16,14 @@ const SelectedMarkerDrawer = () => {
   const [elevation, setElevation] = useState(null);
   const [name, setName] = useState(null);
 
+  const { centerMap } = useMapStore();
   const {
-    selectedMapMarker,
     selectMapMarker,
-    centerMap,
-    deleteMapMarker,
+    selectedMapMarker,
     updateMapMarker,
+    deleteMapMarker,
     isLoading,
-  } = useMap();
+  } = useMapMarkers();
 
   const handleDeselectMapMarker = () => {
     selectMapMarker(null);
@@ -79,6 +80,10 @@ const SelectedMarkerDrawer = () => {
     setName(selectedMapMarker?.name);
   }, [selectedMapMarker]);
 
+  const recenterMap = () => {
+    centerMap(selectedMapMarker.position);
+  };
+
   useEffect(() => {
     refreshState();
   }, [refreshState]);
@@ -125,7 +130,7 @@ const SelectedMarkerDrawer = () => {
               <button
                 data-tooltip-id="tooltip"
                 data-tooltip-content=" Recenter"
-                onClick={centerMap}
+                onClick={recenterMap}
                 disabled={isLoading}
               >
                 <MdOutlineCenterFocusWeak className="text-white text-xl" />

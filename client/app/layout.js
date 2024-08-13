@@ -2,9 +2,9 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import ToastContainer from "@/components/atoms/Toast";
 import Tooltip from "@/components/atoms/Tooltip";
-import AuthInitializer from "@/components/AuthInitializer";
 import { apiInstance } from "@/lib/api";
 import { cookies } from "next/headers";
+import { AuthProvider } from "@/providers/auth/AuthProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -34,13 +34,12 @@ export default async function RootLayout({ children }) {
       return { user: null, sessionCookie };
     }
   };
-
   const session = await loadUserFromSession();
 
   return (
     <html lang="en">
       <body className={inter.className}>
-        <AuthInitializer session={session}>{children}</AuthInitializer>
+        <AuthProvider session={session}>{children}</AuthProvider>
         <ToastContainer />
         <Tooltip id="tooltip" className="z-50" />
       </body>

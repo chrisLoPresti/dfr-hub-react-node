@@ -1,21 +1,16 @@
-import { useMap } from "@/hooks/useMap";
+import useMapMarkers from "@/hooks/useMapMarkers";
+import { useMapStore } from "@/stores/mapStore";
 import classNames from "classnames";
-import { useCallback } from "react";
 import Checkbox from "react-custom-checkbox";
 import { TbDiamonds } from "react-icons/tb";
 
 const Annotations = ({ visible }) => {
-  const { markers, selectMapMarker, centerMap, selectedMapMarker, map } =
-    useMap();
+  const { markers, selectMapMarker, selectedMapMarker } = useMapMarkers();
 
-  const handleSelectMapMarker = useCallback(
-    (marker) => () => {
-      map.setZoom(15);
-      centerMap(marker.position);
-      selectMapMarker(marker);
-    },
-    [map, selectMapMarker]
-  );
+  const handleSelectMapMarker = (marker) => () => {
+    selectMapMarker(marker);
+  };
+
   return visible ? (
     <div className="flex flex-col truncate">
       <p className="my-5 ml-5">Map Annotations</p>

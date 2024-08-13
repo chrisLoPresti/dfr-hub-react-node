@@ -36,7 +36,7 @@ exports.createmarker = async (req, res, next) => {
         email: user.email,
       },
     });
-  } catch (error) {
+  } catch (e) {
     let message = "Unable to create map marker!";
     if (e.code === 11000) {
       message = `A marker with the name '${req.body.name}' already exists!`;

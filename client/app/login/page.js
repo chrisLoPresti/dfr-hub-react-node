@@ -1,12 +1,12 @@
 "use client";
 
 import Input from "@/components/atoms/Input";
-import { useUserStore } from "@/stores/userStore";
+import { useAuth } from "@/hooks/useAuth";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 function LoginPage() {
-  const { user, error, login, loading } = useUserStore();
+  const { user, error, login, loading } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
 

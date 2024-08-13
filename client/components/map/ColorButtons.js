@@ -1,12 +1,20 @@
 import { BsCheck } from "react-icons/bs";
 import classNames from "classnames";
-import { useMap } from "@/hooks/useMap";
+import useMapMarkers from "@/hooks/useMapMarkers";
 
 const ColorButtons = ({ className, color, changeColor, disabled }) => {
-  const { markerColors } = useMap();
+  const {
+    markerColors = {},
+    setDefaultMarkerColor,
+    defaultMarkerColor,
+  } = useMapMarkers();
 
   const handleChangeColor = (color) => () => {
-    changeColor(color);
+    if (changeColor) {
+      changeColor(color);
+    } else {
+      setDefaultMarkerColor(color);
+    }
   };
 
   return (
@@ -21,10 +29,14 @@ const ColorButtons = ({ className, color, changeColor, disabled }) => {
         <button
           key={key}
           className={`bg-${key}-annotation w-5 h-5 flex justify-center items-center`}
-          onClick={changeColor ? handleChangeColor(key) : null}
+          onClick={handleChangeColor(key)}
           disabled={disabled}
         >
-          {color === key ? <BsCheck className="text-white text-xl" /> : ""}
+          {(color || defaultMarkerColor) === key ? (
+            <BsCheck className="text-white text-xl" />
+          ) : (
+            ""
+          )}
         </button>
       ))}
     </div>

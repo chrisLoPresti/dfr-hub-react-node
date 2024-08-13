@@ -1,12 +1,12 @@
 "use client";
 
-import { useUserStore } from "@/stores/userStore";
+import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 
 const { useEffect } = require("react");
 
 const Logout = () => {
-  const { logout } = useUserStore();
+  const { logout } = useAuth();
   const router = useRouter();
 
   useEffect(() => {

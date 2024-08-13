@@ -2,17 +2,17 @@ import { useCallback } from "react";
 import { Marker } from "@react-google-maps/api";
 import themeConfig from "@/tailwind.config";
 import classNames from "classnames";
-import { useMap } from "@/hooks/useMap";
+import useMapMarkers from "@/hooks/useMapMarkers";
+import { useMapStore } from "@/stores/mapStore";
 
-const MapMarker = ({ marker, lockMarkerDrag }) => {
+const MapMarker = ({ marker }) => {
+  const { elevator, map } = useMapStore();
   const {
-    selectMapMarker,
-    selectedMapMarker,
-    elevator,
     updateMapMarker,
-    centerMap,
-    map,
-  } = useMap();
+    canDragMarkers,
+    selectedMapMarker,
+    selectMapMarker,
+  } = useMapMarkers();
 
   const updatePosition = useCallback(
     async ({ latLng }) => {
@@ -32,23 +32,20 @@ const MapMarker = ({ marker, lockMarkerDrag }) => {
         ...marker,
         position: { lat: newLat, lng: newLng, elevation },
       });
-      map.centerMap({ lat: newLat, lng: newLng, elevation });
     },
 
-    [updateMapMarker, elevator, marker, selectMapMarker, map]
+    [updateMapMarker, elevator, marker, map]
   );
 
-  const handleSelectMarker = useCallback(() => {
+  const handleSelectMarker = () => {
     selectMapMarker(marker);
-    centerMap(marker.position);
-    map.setZoom(15);
-  }, [marker, selectMapMarker, centerMap, map]);
+  };
 
   return (
     <Marker
       position={marker.position}
       markerId={marker.name}
-      draggable={lockMarkerDrag ? false : true}
+      draggable={canDragMarkers}
       onDragEnd={updatePosition}
       onClick={handleSelectMarker}
       icon={{
